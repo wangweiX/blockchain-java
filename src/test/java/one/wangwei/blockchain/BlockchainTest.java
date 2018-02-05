@@ -1,19 +1,29 @@
 package one.wangwei.blockchain;
 
+import one.wangwei.blockchain.block.Block;
+import one.wangwei.blockchain.block.Blockchain;
+import org.apache.commons.codec.binary.Hex;
+
+/**
+ * 测试
+ *
+ * @author wangwei
+ * @date 2018/02/05
+ */
 public class BlockchainTest {
 
     public static void main(String[] args) {
+
         Blockchain blockchain = Blockchain.newBlockchain();
-        for (int i = 0; i < 10; i++) {
-            blockchain.addBlock("I'm Block and my Block num is " + i);
-        }
+        blockchain.addBlock("Send 1 BTC to Ivan");
+        blockchain.addBlock("Send 2 more BTC to Ivan");
 
         for (Block block : blockchain.getBlockList()) {
-            String previousHash = block.getPreviousHash();
-            String data = block.getData();
-            String hash = block.getHash();
-
-            System.out.printf("previousHash= %s\n data= %s\n hash= %s\n\n", previousHash, data, hash);
+            System.out.printf("Prev. hash: %s\n", Hex.encodeHexString(block.getPreviousHash()));
+            System.out.printf("Data: %s\n", new String(block.getData()));
+            System.out.printf("Hash: %s\n", Hex.encodeHexString(block.getHash()));
+            System.out.println("\n");
         }
     }
+
 }

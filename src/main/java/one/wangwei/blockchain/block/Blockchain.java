@@ -1,4 +1,4 @@
-package one.wangwei.blockchain;
+package one.wangwei.blockchain.block;
 
 import lombok.Getter;
 
@@ -34,7 +34,7 @@ public class Blockchain {
      */
     public void addBlock(String data) {
         Block previousBlock = blockList.get(blockList.size() - 1);
-        this.addBlock(new Block(previousBlock.getHash(), data));
+        this.addBlock(Block.newBlock(previousBlock.getHash(), data));
     }
 
     /**
