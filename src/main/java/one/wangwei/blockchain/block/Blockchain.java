@@ -14,7 +14,11 @@ import java.util.List;
 public class Blockchain {
 
     @Getter
-    private final List<Block> blockList = new LinkedList<>();
+    private List<Block> blockList;
+
+    public Blockchain(List<Block> blockList) {
+        this.blockList = blockList;
+    }
 
     /**
      * <p> 创建区块链 </p>
@@ -22,9 +26,9 @@ public class Blockchain {
      * @return
      */
     public static Blockchain newBlockchain() {
-        Blockchain blockchain = new Blockchain();
-        blockchain.addBlock(Block.newGenesisBlock());
-        return blockchain;
+        List<Block> blocks = new LinkedList<>();
+        blocks.add(Block.newGenesisBlock());
+        return new Blockchain(blocks);
     }
 
     /**
