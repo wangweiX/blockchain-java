@@ -36,7 +36,6 @@ public class ByteUtils {
      * @return
      */
     public static byte[] toByte(long data) {
-        return ByteBuffer.allocate(Long.SIZE / Byte.SIZE).putLong(data).array();
+        return ByteBuffer.allocate(Long.BYTES).putLong(data).array();
     }
-
 }

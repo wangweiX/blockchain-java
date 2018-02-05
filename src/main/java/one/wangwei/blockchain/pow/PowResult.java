@@ -13,13 +13,13 @@ public class PowResult {
     /**
      *
      */
-    private int nonce;
+    private long nonce;
     /**
      *
      */
-    private byte[] hash;
+    private String hash;
 
-    public PowResult(int nonce, byte[] hash) {
+    public PowResult(long nonce, String hash) {
         this.nonce = nonce;
         this.hash = hash;
     }

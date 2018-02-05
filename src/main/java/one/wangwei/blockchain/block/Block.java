@@ -18,15 +18,15 @@ public class Block {
     /**
      * 区块hash值
      */
-    private byte[] hash;
+    private String hash;
     /**
      * 前一个区块的hash值
      */
-    private byte[] prevBlockHash;
+    private String prevBlockHash;
     /**
      * 区块数据
      */
-    private byte[] data;
+    private String data;
     /**
      * 区块创建时间(单位:秒)
      */
@@ -34,12 +34,12 @@ public class Block {
     /**
      * 工作量证明计数器
      */
-    private int nonce;
+    private long nonce;
 
     public Block() {
     }
 
-    public Block(byte[] hash, byte[] prevBlockHash, byte[] data, long timeStamp, int nonce) {
+    public Block(String hash, String prevBlockHash, String data, long timeStamp, long nonce) {
         this();
         this.hash = hash;
         this.prevBlockHash = prevBlockHash;
@@ -54,7 +54,7 @@ public class Block {
      * @return
      */
     public static Block newGenesisBlock() {
-        return Block.newBlock(new byte[]{}, "Genesis Block");
+        return Block.newBlock("", "Genesis Block");
     }
 
     /**
@@ -64,8 +64,8 @@ public class Block {
      * @param data
      * @return
      */
-    static Block newBlock(byte[] previousHash, String data) {
-        Block block = new Block(new byte[]{}, previousHash, data.getBytes(), Instant.now().getEpochSecond(), 0);
+    static Block newBlock(String previousHash, String data) {
+        Block block = new Block("", previousHash, data, Instant.now().getEpochSecond(), 0);
         ProofOfWork pow = ProofOfWork.newProofOfWork(block);
         PowResult powResult = pow.run();
         block.setHash(powResult.getHash());
