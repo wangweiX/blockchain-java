@@ -1,7 +1,4 @@
-## 基于Java语言构建区块链（一）—— 基本原型
+## 基于Java语言构建区块链
 
-##### 博客链接
-- https://wangwei.one/posts/df195d9.html
-
-##### Go语言版
-- https://github.com/wangweiX/blockchain_go/tree/part_1
+- [基本原型](https://wangwei.one/posts/df195d9.html)
+- [工作量证明](https://wangwei.one/posts/7890ab7e.html)
