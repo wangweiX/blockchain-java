@@ -24,7 +24,7 @@ public class Block {
      */
     private String prevBlockHash;
     /**
-     * 区块数据
+     * 区块数据（交易数据）
      */
     private String data;
     /**
@@ -64,7 +64,7 @@ public class Block {
      * @param data
      * @return
      */
-    static Block newBlock(String previousHash, String data) {
+    public static Block newBlock(String previousHash, String data) {
         Block block = new Block("", previousHash, data, Instant.now().getEpochSecond(), 0);
         ProofOfWork pow = ProofOfWork.newProofOfWork(block);
         PowResult powResult = pow.run();

@@ -16,11 +16,17 @@ import java.math.BigInteger;
 public class ProofOfWork {
 
     /**
+     * 难度目标位
+     */
+    public static final int TARGET_BITS = 20;
+
+    /**
+     * 区块
+     */
+    private Block block;
+    /**
      * 难度目标值
      */
-    public static final int TARGET_BITS = 21;
-
-    private Block block;
     private BigInteger target;
 
     private ProofOfWork(Block block, BigInteger target) {
@@ -30,6 +36,8 @@ public class ProofOfWork {
 
     /**
      * 创建新的工作量证明，设定难度目标值
+     * <p>
+     * 对1进行移位运算，将1向左移动 (256 - TARGET_BITS) 位，得到我们的难度目标值
      *
      * @param block
      * @return
@@ -40,7 +48,7 @@ public class ProofOfWork {
     }
 
     /**
-     * 运行工作量证明，开始挖矿
+     * 运行工作量证明，开始挖矿，找到小于难度目标值的Hash
      *
      * @return
      */
@@ -65,7 +73,7 @@ public class ProofOfWork {
     }
 
     /**
-     * <p> 验证区块是否有效 </p>
+     * 验证区块是否有效
      *
      * @return
      */
