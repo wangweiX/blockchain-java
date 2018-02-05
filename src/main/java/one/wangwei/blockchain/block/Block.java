@@ -1,8 +1,8 @@
 package one.wangwei.blockchain.block;
 
 import lombok.Data;
-import one.wangwei.blockchain.util.ByteUtils;
-import org.apache.commons.codec.digest.DigestUtils;
+import one.wangwei.blockchain.pow.PowResult;
+import one.wangwei.blockchain.pow.ProofOfWork;
 
 import java.time.Instant;
 
@@ -22,7 +22,7 @@ public class Block {
     /**
      * 前一个区块的hash值
      */
-    private byte[] previousHash;
+    private byte[] prevBlockHash;
     /**
      * 区块数据
      */
@@ -31,16 +31,21 @@ public class Block {
      * 区块创建时间(单位:秒)
      */
     private long timeStamp;
+    /**
+     * 工作量证明计数器
+     */
+    private int nonce;
 
     public Block() {
     }
 
-    public Block(byte[] hash, byte[] previousHash, byte[] data, long timeStamp) {
+    public Block(byte[] hash, byte[] prevBlockHash, byte[] data, long timeStamp, int nonce) {
         this();
         this.hash = hash;
-        this.previousHash = previousHash;
+        this.prevBlockHash = prevBlockHash;
         this.data = data;
         this.timeStamp = timeStamp;
+        this.nonce = nonce;
     }
 
     /**
@@ -59,20 +64,12 @@ public class Block {
      * @param data
      * @return
      */
-    public static Block newBlock(byte[] previousHash, String data) {
-        Block block = new Block(new byte[]{}, previousHash, data.getBytes(), Instant.now().getEpochSecond());
-        block.setHash();
+    static Block newBlock(byte[] previousHash, String data) {
+        Block block = new Block(new byte[]{}, previousHash, data.getBytes(), Instant.now().getEpochSecond(), 0);
+        ProofOfWork pow = ProofOfWork.newProofOfWork(block);
+        PowResult powResult = pow.run();
+        block.setHash(powResult.getHash());
+        block.setNonce(powResult.getNonce());
         return block;
-    }
-
-    /**
-     * <p> 计算区块Hash </p>
-     * 对 previousHash + timeStamp + data 进行hash计算
-     *
-     * @return
-     */
-    private void setHash() {
-        byte[] headers = ByteUtils.merge(previousHash, data, Long.toString(timeStamp).getBytes());
-        this.hash = DigestUtils.sha256(headers);
     }
 }

@@ -1,6 +1,8 @@
 package one.wangwei.blockchain.block;
 
 import lombok.Getter;
+import one.wangwei.blockchain.pow.PowResult;
+import one.wangwei.blockchain.pow.ProofOfWork;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -14,7 +16,11 @@ import java.util.List;
 public class Blockchain {
 
     @Getter
-    private final List<Block> blockList = new LinkedList<>();
+    private List<Block> blockList;
+
+    private Blockchain(List<Block> blockList) {
+        this.blockList = blockList;
+    }
 
     /**
      * <p> 创建区块链 </p>
@@ -22,9 +28,9 @@ public class Blockchain {
      * @return
      */
     public static Blockchain newBlockchain() {
-        Blockchain blockchain = new Blockchain();
-        blockchain.addBlock(Block.newGenesisBlock());
-        return blockchain;
+        List<Block> blocks = new LinkedList<>();
+        blocks.add(Block.newGenesisBlock());
+        return new Blockchain(blocks);
     }
 
     /**
@@ -43,6 +49,10 @@ public class Blockchain {
      * @param block
      */
     public void addBlock(Block block) {
+        ProofOfWork pow = ProofOfWork.newProofOfWork(block);
+        PowResult powResult = pow.run();
+        block.setHash(powResult.getHash());
+        block.setNonce(powResult.getNonce());
         this.blockList.add(block);
     }
 
