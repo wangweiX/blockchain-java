@@ -4,6 +4,8 @@ import lombok.Data;
 import one.wangwei.blockchain.pow.PowResult;
 import one.wangwei.blockchain.pow.ProofOfWork;
 
+import java.time.Instant;
+
 /**
  * 区块
  *
@@ -20,7 +22,7 @@ public class Block {
     /**
      * 前一个区块的hash值
      */
-    private byte[] previousHash;
+    private byte[] prevBlockHash;
     /**
      * 区块数据
      */
@@ -32,17 +34,18 @@ public class Block {
     /**
      * 工作量证明计数器
      */
-    private long nonce;
+    private int nonce;
 
     public Block() {
     }
 
-    public Block(byte[] hash, byte[] previousHash, byte[] data, long timeStamp) {
+    public Block(byte[] hash, byte[] prevBlockHash, byte[] data, long timeStamp, int nonce) {
         this();
         this.hash = hash;
-        this.previousHash = previousHash;
+        this.prevBlockHash = prevBlockHash;
         this.data = data;
         this.timeStamp = timeStamp;
+        this.nonce = nonce;
     }
 
     /**
@@ -62,7 +65,7 @@ public class Block {
      * @return
      */
     static Block newBlock(byte[] previousHash, String data) {
-        Block block = new Block(previousHash, data.getBytes());
+        Block block = new Block(new byte[]{}, previousHash, data.getBytes(), Instant.now().getEpochSecond(), 0);
         ProofOfWork pow = ProofOfWork.newProofOfWork(block);
         PowResult powResult = pow.run();
         block.setHash(powResult.getHash());

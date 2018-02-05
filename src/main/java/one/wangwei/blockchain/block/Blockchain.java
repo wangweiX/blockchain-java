@@ -40,7 +40,7 @@ public class Blockchain {
      */
     public void addBlock(String data) {
         Block previousBlock = blockList.get(blockList.size() - 1);
-        this.addBlock(new Block(previousBlock.getHash(), data.getBytes()));
+        this.addBlock(Block.newBlock(previousBlock.getHash(), data));
     }
 
     /**

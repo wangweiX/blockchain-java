@@ -2,6 +2,7 @@ package one.wangwei.blockchain.util;
 
 import org.apache.commons.lang3.ArrayUtils;
 
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
@@ -25,6 +26,17 @@ public class ByteUtils {
             stream = Stream.concat(stream, Arrays.stream(ArrayUtils.toObject(b)));
         }
         return ArrayUtils.toPrimitive(stream.toArray(Byte[]::new));
+    }
+
+
+    /**
+     * long 类型转 byte[]
+     *
+     * @param data
+     * @return
+     */
+    public static byte[] toByte(long data) {
+        return ByteBuffer.allocate(Long.SIZE / Byte.SIZE).putLong(data).array();
     }
 
 }
