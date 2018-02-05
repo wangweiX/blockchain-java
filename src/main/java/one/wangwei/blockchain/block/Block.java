@@ -1,7 +1,6 @@
 package one.wangwei.blockchain.block;
 
 import lombok.Data;
-import one.wangwei.blockchain.util.ByteUtils;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import java.time.Instant;
@@ -18,15 +17,15 @@ public class Block {
     /**
      * 区块hash值
      */
-    private byte[] hash;
+    private String hash;
     /**
      * 前一个区块的hash值
      */
-    private byte[] previousHash;
+    private String previousHash;
     /**
      * 区块数据
      */
-    private byte[] data;
+    private String data;
     /**
      * 区块创建时间(单位:秒)
      */
@@ -35,7 +34,7 @@ public class Block {
     public Block() {
     }
 
-    public Block(byte[] hash, byte[] previousHash, byte[] data, long timeStamp) {
+    public Block(String hash, String previousHash, String data, long timeStamp) {
         this();
         this.hash = hash;
         this.previousHash = previousHash;
@@ -49,7 +48,7 @@ public class Block {
      * @return
      */
     public static Block newGenesisBlock() {
-        return Block.newBlock(new byte[]{}, "Genesis Block");
+        return Block.newBlock("", "Genesis Block");
     }
 
     /**
@@ -59,8 +58,8 @@ public class Block {
      * @param data
      * @return
      */
-    public static Block newBlock(byte[] previousHash, String data) {
-        Block block = new Block(new byte[]{}, previousHash, data.getBytes(), Instant.now().getEpochSecond());
+    public static Block newBlock(String previousHash, String data) {
+        Block block = new Block("", previousHash, data, Instant.now().getEpochSecond());
         block.setHash();
         return block;
     }
@@ -72,7 +71,7 @@ public class Block {
      * @return
      */
     private void setHash() {
-        byte[] headers = ByteUtils.merge(previousHash, data, Long.toString(timeStamp).getBytes());
-        this.hash = DigestUtils.sha256(headers);
+        String headers = previousHash + data + timeStamp;
+        this.hash = DigestUtils.sha256Hex(headers);
     }
 }
