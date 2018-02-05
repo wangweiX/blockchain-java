@@ -1,7 +1,15 @@
 package one.wangwei.blockchain;
 
+import one.wangwei.blockchain.block.Block;
 import one.wangwei.blockchain.block.Blockchain;
+import org.apache.commons.codec.binary.Hex;
 
+/**
+ * 测试
+ *
+ * @author wangwei
+ * @date 2018/02/05
+ */
 public class BlockchainTest {
 
     public static void main(String[] args) {
@@ -23,8 +31,9 @@ public class BlockchainTest {
 //        System.out.println("b_binary length=" + b.toString(2).length());
 
         Blockchain blockchain = Blockchain.newBlockchain();
-        blockchain.addBlock("Send 1 BTC to Ivan");
-        blockchain.addBlock("Send 2 more BTC to Ivan");
+        for (int i = 0; i < 10; i++) {
+            blockchain.addBlock("I'm Block and my Block num is " + i);
+        }
 
 //        for (Block block : blockchain.getBlockList()) {
 //            String previousHash = block.getPreviousHash();

@@ -26,7 +26,7 @@ public class Block {
      */
     private byte[] data;
     /**
-     * 区块创建时间戳
+     * 区块创建时间(单位:秒)
      */
     private long timeStamp;
     /**
@@ -34,16 +34,24 @@ public class Block {
      */
     private long nonce;
 
-    /**
-     * @param previousHash 前一个区块hash值
-     * @param data         该区块数据
-     */
-    public Block(byte[] previousHash, byte[] data) {
-        this.hash = new byte[]{};
+    public Block() {
+    }
+
+    public Block(byte[] hash, byte[] previousHash, byte[] data, long timeStamp) {
+        this();
+        this.hash = hash;
         this.previousHash = previousHash;
         this.data = data;
-        this.timeStamp = System.currentTimeMillis();
-        this.nonce = 0;
+        this.timeStamp = timeStamp;
+    }
+
+    /**
+     * <p> 创建创世区块 </p>
+     *
+     * @return
+     */
+    public static Block newGenesisBlock() {
+        return Block.newBlock(new byte[]{}, "Genesis Block");
     }
 
     /**
@@ -60,14 +68,5 @@ public class Block {
         block.setHash(powResult.getHash());
         block.setNonce(powResult.getNonce());
         return block;
-    }
-
-    /**
-     * <p> 创建创世区块 </p>
-     *
-     * @return
-     */
-    public static Block newGenesisBlock() {
-        return newBlock(new byte[]{}, "Genesis Block");
     }
 }
