@@ -20,7 +20,7 @@ public class ProofOfWork {
     /**
      * 难度目标位
      */
-    public static final int TARGET_BITS = 24;
+    public static final int TARGET_BITS = 25;
 
     /**
      * 区块
@@ -87,7 +87,7 @@ public class ProofOfWork {
     /**
      * 准备数据
      * <p>
-     * 注意：在准备区块数据时，一定要从原始数据类型转化为byte[]，不能直接从字符串进行抓换
+     * 注意：在准备区块数据时，一定要从原始数据类型转化为byte[]，不能直接从字符串进行转换
      *
      * @param nonce
      * @return
