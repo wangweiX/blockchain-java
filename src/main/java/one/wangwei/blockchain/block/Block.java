@@ -1,8 +1,11 @@
 package one.wangwei.blockchain.block;
 
 import lombok.Data;
+import one.wangwei.blockchain.util.ByteUtils;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
 
+import java.math.BigInteger;
 import java.time.Instant;
 
 /**
@@ -21,7 +24,7 @@ public class Block {
     /**
      * 前一个区块的hash值
      */
-    private String previousHash;
+    private String prevBlockHash;
     /**
      * 区块数据
      */
@@ -34,10 +37,10 @@ public class Block {
     public Block() {
     }
 
-    public Block(String hash, String previousHash, String data, long timeStamp) {
+    public Block(String hash, String prevBlockHash, String data, long timeStamp) {
         this();
         this.hash = hash;
-        this.previousHash = previousHash;
+        this.prevBlockHash = prevBlockHash;
         this.data = data;
         this.timeStamp = timeStamp;
     }
@@ -66,12 +69,21 @@ public class Block {
 
     /**
      * <p> 计算区块Hash </p>
-     * 对 previousHash + timeStamp + data 进行hash计算
+     * 对 prevBlockHash + timeStamp + data 进行hash计算
      *
      * @return
      */
     private void setHash() {
-        String headers = previousHash + data + timeStamp;
+        byte[] prevBlockHashBytes = {};
+        if (StringUtils.isNoneBlank(this.getPrevBlockHash())) {
+            prevBlockHashBytes = new BigInteger(this.getPrevBlockHash(), 16).toByteArray();
+        }
+
+        byte[] headers = ByteUtils.merge(
+                prevBlockHashBytes,
+                this.getData().getBytes(),
+                ByteUtils.toBytes(this.getTimeStamp()));
+
         this.hash = DigestUtils.sha256Hex(headers);
     }
 }

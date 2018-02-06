@@ -18,7 +18,7 @@ public class BlockchainTest {
         blockchain.addBlock("Send 2 more BTC to Ivan");
 
         for (Block block : blockchain.getBlockList()) {
-            System.out.println("Prev. hash: " + block.getPreviousHash());
+            System.out.println("Prev. hash: " + block.getPrevBlockHash());
             System.out.println("Data: " + block.getData());
             System.out.println("Hash: " + block.getHash());
             System.out.println();
