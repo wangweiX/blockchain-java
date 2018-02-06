@@ -31,11 +31,11 @@ public class ByteUtils {
     /**
      * long 类型转 byte[]
      *
-     * @param data
+     * @param val
      * @return
      */
-    public static byte[] toBytes(long data) {
-        return ByteBuffer.allocate(Long.BYTES).putLong(data).array();
+    public static byte[] toBytes(long val) {
+        return ByteBuffer.allocate(Long.BYTES).putLong(val).array();
     }
 
 }
