@@ -20,7 +20,7 @@ public class ProofOfWork {
     /**
      * 难度目标位
      */
-    public static final int TARGET_BITS = 25;
+    public static final int TARGET_BITS = 26;
 
     /**
      * 区块
@@ -58,7 +58,6 @@ public class ProofOfWork {
         long nonce = 0;
         String shaHex = "";
         System.out.printf("Mining the block containing：%s \n", this.getBlock().getData());
-
         long startTime = System.currentTimeMillis();
         while (nonce < Long.MAX_VALUE) {
             byte[] data = this.prepareData(nonce);
