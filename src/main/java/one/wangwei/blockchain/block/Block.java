@@ -85,6 +85,6 @@ public class Block {
                 this.getData().getBytes(),
                 ByteUtils.toBytes(this.getTimeStamp()));
 
-        this.hash = DigestUtils.sha256Hex(headers);
+        this.setHash(DigestUtils.sha256Hex(headers));
     }
 }
