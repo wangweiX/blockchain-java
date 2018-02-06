@@ -2,7 +2,9 @@ package one.wangwei.blockchain.pow;
 
 import lombok.Data;
 import one.wangwei.blockchain.block.Block;
+import one.wangwei.blockchain.util.ByteUtils;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigInteger;
 
@@ -18,7 +20,7 @@ public class ProofOfWork {
     /**
      * 难度目标位
      */
-    public static final int TARGET_BITS = 20;
+    public static final int TARGET_BITS = 24;
 
     /**
      * 区块
@@ -59,7 +61,7 @@ public class ProofOfWork {
 
         long startTime = System.currentTimeMillis();
         while (nonce < Long.MAX_VALUE) {
-            String data = this.prepareData(nonce);
+            byte[] data = this.prepareData(nonce);
             shaHex = DigestUtils.sha256Hex(data);
             if (new BigInteger(shaHex, 16).compareTo(this.target) == -1) {
                 System.out.printf("Elapsed Time: %s seconds \n", (float) (System.currentTimeMillis() - startTime) / 1000);
@@ -78,22 +80,32 @@ public class ProofOfWork {
      * @return
      */
     public boolean validate() {
-        String data = this.prepareData(this.getBlock().getNonce());
+        byte[] data = this.prepareData(this.getBlock().getNonce());
         return new BigInteger(DigestUtils.sha256Hex(data), 16).compareTo(this.target) == -1;
     }
 
     /**
      * 准备数据
+     * <p>
+     * 注意：在准备区块数据时，一定要从原始数据类型转化为byte[]，不能直接从字符串进行抓换
      *
      * @param nonce
      * @return
      */
-    private String prepareData(long nonce) {
-        return this.getBlock().getPrevBlockHash()
-                + this.getBlock().getData()
-                + this.getBlock().getTimeStamp()
-                + TARGET_BITS
-                + nonce;
+    private byte[] prepareData(long nonce) {
+        byte[] prevBlockHashBytes = {};
+        if (StringUtils.isNoneBlank(this.getBlock().getPrevBlockHash())) {
+            prevBlockHashBytes = new BigInteger(this.getBlock().getPrevBlockHash(), 16).toByteArray();
+        }
+
+        return ByteUtils.merge(
+                prevBlockHashBytes,
+                this.getBlock().getData().getBytes(),
+                ByteUtils.toBytes(this.getBlock().getTimeStamp()),
+                ByteUtils.toBytes(TARGET_BITS),
+                ByteUtils.toBytes(nonce)
+        );
+
     }
 
 }

@@ -28,14 +28,14 @@ public class ByteUtils {
         return ArrayUtils.toPrimitive(stream.toArray(Byte[]::new));
     }
 
-
     /**
      * long 类型转 byte[]
      *
      * @param data
      * @return
      */
-    public static byte[] toByte(long data) {
+    public static byte[] toBytes(long data) {
         return ByteBuffer.allocate(Long.BYTES).putLong(data).array();
     }
+
 }

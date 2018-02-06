@@ -26,7 +26,8 @@ public class BlockchainTest {
             System.out.println("Nonce: " + block.getNonce());
 
             ProofOfWork pow = ProofOfWork.newProofOfWork(block);
-            System.out.println("Pow valid: " +  pow.validate() + "\n");
+            System.out.println("Pow valid: " + pow.validate() + "\n");
         }
     }
+
 }
