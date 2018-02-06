@@ -68,8 +68,9 @@ public class Block {
     }
 
     /**
-     * <p> 计算区块Hash </p>
-     * 对 prevBlockHash + timeStamp + data 进行hash计算
+     * 计算区块Hash
+     * <p>
+     * 注意：在准备区块数据时，一定要从原始数据类型转化为byte[]，不能直接从字符串进行抓换
      *
      * @return
      */
