@@ -71,7 +71,7 @@ public class RedisUtils {
 
 
     /**
-     * 存储缓存
+     * 存储数据
      *
      * @param key
      * @param value
@@ -91,6 +91,8 @@ public class RedisUtils {
     }
 
     /**
+     * 查询数据
+     *
      * @param key
      */
     public Object getObject(Object key) {
