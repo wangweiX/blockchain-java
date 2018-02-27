@@ -77,10 +77,21 @@ public class Blockchain {
          * @return
          */
         public boolean hashNext() throws Exception {
+            if (StringUtils.isBlank(currentBlockHash)) {
+                return false;
+            }
             Block lastBlock = RocksDBUtils.getInstance().getBlock(currentBlockHash);
-            return lastBlock != null && StringUtils.isNotBlank(lastBlock.getPrevBlockHash());
+            if (lastBlock == null) {
+                return false;
+            }
+            // 创世区块直接放行
+            if (lastBlock.getPrevBlockHash().length() == 0) {
+                return true;
+            }
+            return RocksDBUtils.getInstance().getBlock(lastBlock.getPrevBlockHash()) != null;
         }
 
+        
         /**
          * 返回区块
          *

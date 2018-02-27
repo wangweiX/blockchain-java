@@ -1,5 +1,6 @@
 package one.wangwei.blockchain.util;
 
+import lombok.Getter;
 import one.wangwei.blockchain.block.Block;
 import org.rocksdb.Options;
 import org.rocksdb.RocksDB;
@@ -35,7 +36,8 @@ public class RocksDBUtils {
         return instance;
     }
 
-    private static RocksDB rocksDB;
+    @Getter
+    private RocksDB rocksDB;
 
     private RocksDBUtils() {
         initRocksDB();
@@ -58,7 +60,7 @@ public class RocksDBUtils {
      * @param tipBlockHash
      */
     public void putLastBlockHash(String tipBlockHash) throws Exception {
-        rocksDB.put((BLOCKS_BUCKET_PREFIX + "l").getBytes(), tipBlockHash.getBytes());
+        rocksDB.put(SerializeUtils.serialize(BLOCKS_BUCKET_PREFIX + "l"), SerializeUtils.serialize(tipBlockHash));
     }
 
     /**
@@ -67,9 +69,9 @@ public class RocksDBUtils {
      * @return
      */
     public String getLastBlockHash() throws Exception {
-        byte[] lastBlockHashBytes = rocksDB.get((BLOCKS_BUCKET_PREFIX + "l").getBytes());
+        byte[] lastBlockHashBytes = rocksDB.get(SerializeUtils.serialize(BLOCKS_BUCKET_PREFIX + "l"));
         if (lastBlockHashBytes != null) {
-            return new String(lastBlockHashBytes);
+            return (String) SerializeUtils.deserialize(lastBlockHashBytes);
         }
         return "";
     }
@@ -80,7 +82,8 @@ public class RocksDBUtils {
      * @param block
      */
     public void putBlock(Block block) throws Exception {
-        rocksDB.put((BLOCKS_BUCKET_PREFIX + block.getHash()).getBytes(), SerializeUtils.serialize(block));
+        byte[] key = SerializeUtils.serialize(BLOCKS_BUCKET_PREFIX + block.getHash());
+        rocksDB.put(key, SerializeUtils.serialize(block));
     }
 
     /**
@@ -90,7 +93,8 @@ public class RocksDBUtils {
      * @return
      */
     public Block getBlock(String blockHash) throws Exception {
-        return (Block) SerializeUtils.deserialize(rocksDB.get((BLOCKS_BUCKET_PREFIX + blockHash).getBytes()));
+        byte[] key = SerializeUtils.serialize(BLOCKS_BUCKET_PREFIX + blockHash);
+        return (Block) SerializeUtils.deserialize(rocksDB.get(key));
     }
 
 }
