@@ -3,7 +3,6 @@ package one.wangwei.blockchain;
 import one.wangwei.blockchain.block.Block;
 import one.wangwei.blockchain.block.Blockchain;
 import one.wangwei.blockchain.pow.ProofOfWork;
-import one.wangwei.blockchain.util.RedisUtils;
 
 /**
  * 测试
@@ -14,29 +13,25 @@ import one.wangwei.blockchain.util.RedisUtils;
 public class BlockchainTest {
 
     public static void main(String[] args) {
+        try {
+            Blockchain blockchain = Blockchain.newBlockchain();
 
-//        testRedis();
+            blockchain.addBlock("Send 1.0 BTC to wangwei");
+            blockchain.addBlock("Send 2.5 more BTC to wangwei");
+            blockchain.addBlock("Send 3.5 more BTC to wangwei");
 
-        Blockchain blockchain = Blockchain.newBlockchain();
+            for (Blockchain.BlockchainIterator iterator = blockchain.getBlockchainIterator(); iterator.hashNext(); ) {
+                Block block = iterator.next();
 
-        blockchain.addBlock("Send 1 BTC to Ivan");
-        blockchain.addBlock("Send 2 more BTC to Ivan");
+                if (block != null) {
+                    boolean validate = ProofOfWork.newProofOfWork(block).validate();
+                    System.out.println(block.toString() + ", validate = " + validate);
+                }
+            }
 
-        for (Block block : blockchain.getBlockList()) {
-            System.out.println("Prev.hash: " + block.getPrevBlockHash());
-            System.out.println("Data: " + block.getData());
-            System.out.println("Hash: " + block.getHash());
-            System.out.println("Nonce: " + block.getNonce());
-
-            ProofOfWork pow = ProofOfWork.newProofOfWork(block);
-            System.out.println("Pow valid: " + pow.validate() + "\n");
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-    }
-
-    private static void testRedis() {
-        RedisUtils.getInstance().putObject("1", "wangwei");
-        String val = (String) RedisUtils.getInstance().getObject("1");
-        System.out.println(val);
     }
 
 }
