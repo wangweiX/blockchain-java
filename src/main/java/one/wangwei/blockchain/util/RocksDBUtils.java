@@ -1,6 +1,5 @@
 package one.wangwei.blockchain.util;
 
-import lombok.Getter;
 import one.wangwei.blockchain.block.Block;
 import org.rocksdb.Options;
 import org.rocksdb.RocksDB;
@@ -36,7 +35,6 @@ public class RocksDBUtils {
         return instance;
     }
 
-    @Getter
     private RocksDB rocksDB;
 
     private RocksDBUtils() {
