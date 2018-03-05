@@ -16,12 +16,17 @@ public class TXInput {
      */
     private byte[] txId;
     /**
-     *
+     * 交易输出索引
      */
-    private int vOut;
+    private int txOutputIndex;
     /**
      * 解锁脚本
      */
     private String scriptSig;
 
+    public TXInput(byte[] txId, int txOutputIndex, String scriptSig) {
+        this.txId = txId;
+        this.txOutputIndex = txOutputIndex;
+        this.scriptSig = scriptSig;
+    }
 }

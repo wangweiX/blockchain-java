@@ -20,4 +20,8 @@ public class TXOutput {
      */
     private String scriptPubKey;
 
+    public TXOutput(int value, String scriptPubKey) {
+        this.value = value;
+        this.scriptPubKey = scriptPubKey;
+    }
 }

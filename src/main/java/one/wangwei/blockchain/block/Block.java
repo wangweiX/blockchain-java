@@ -3,6 +3,9 @@ package one.wangwei.blockchain.block;
 import lombok.Data;
 import one.wangwei.blockchain.pow.PowResult;
 import one.wangwei.blockchain.pow.ProofOfWork;
+import one.wangwei.blockchain.transaction.Transaction;
+import one.wangwei.blockchain.util.ByteUtils;
+import org.apache.commons.codec.digest.DigestUtils;
 
 import java.time.Instant;
 
@@ -24,9 +27,9 @@ public class Block {
      */
     private String prevBlockHash;
     /**
-     * 区块数据（交易数据）
+     * 交易信息
      */
-    private String data;
+    private Transaction[] transactions;
     /**
      * 区块创建时间(单位:秒)
      */
@@ -39,11 +42,11 @@ public class Block {
     public Block() {
     }
 
-    public Block(String hash, String prevBlockHash, String data, long timeStamp, long nonce) {
+    public Block(String hash, String prevBlockHash, Transaction[] transactions, long timeStamp, long nonce) {
         this();
         this.hash = hash;
         this.prevBlockHash = prevBlockHash;
-        this.data = data;
+        this.transactions = transactions;
         this.timeStamp = timeStamp;
         this.nonce = nonce;
     }
@@ -51,21 +54,22 @@ public class Block {
     /**
      * <p> 创建创世区块 </p>
      *
+     * @param coinbase
      * @return
      */
-    public static Block newGenesisBlock() {
-        return Block.newBlock("", "Genesis Block");
+    public static Block newGenesisBlock(Transaction coinbase) {
+        return Block.newBlock("", new Transaction[]{coinbase});
     }
 
     /**
      * <p> 创建新区块 </p>
      *
      * @param previousHash
-     * @param data
+     * @param transactions
      * @return
      */
-    public static Block newBlock(String previousHash, String data) {
-        Block block = new Block("", previousHash, data, Instant.now().getEpochSecond(), 0);
+    public static Block newBlock(String previousHash, Transaction[] transactions) {
+        Block block = new Block("", previousHash, transactions, Instant.now().getEpochSecond(), 0);
         ProofOfWork pow = ProofOfWork.newProofOfWork(block);
         PowResult powResult = pow.run();
         block.setHash(powResult.getHash());
@@ -73,12 +77,26 @@ public class Block {
         return block;
     }
 
+    /**
+     * 对区块中的交易信息进行Hash计算
+     *
+     * @return
+     */
+    public byte[] hashTransaction() {
+        byte[][] txIdArrays = new byte[this.getTransactions().length][];
+        for (int i = 0; i < this.getTransactions().length; i++) {
+            txIdArrays[i] = this.getTransactions()[i].getTxId();
+        }
+        return DigestUtils.sha256(ByteUtils.merge(txIdArrays));
+    }
+
+
     @Override
     public String toString() {
         return "Block{" +
                 "hash='" + hash + '\'' +
                 ", prevBlockHash='" + prevBlockHash + '\'' +
-                ", data='" + data + '\'' +
+                ", transactions='" + transactions + '\'' +
                 ", timeStamp=" + timeStamp +
                 ", nonce=" + nonce +
                 '}';

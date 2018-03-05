@@ -1,6 +1,7 @@
 package one.wangwei.blockchain.block;
 
 import lombok.Getter;
+import one.wangwei.blockchain.transaction.Transaction;
 import one.wangwei.blockchain.util.RocksDBUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -22,12 +23,15 @@ public class Blockchain {
     /**
      * <p> 创建区块链 </p>
      *
+     * @param address 钱包地址
      * @return
      */
-    public static Blockchain newBlockchain() throws Exception {
+    public static Blockchain newBlockchain(String address) throws Exception {
         String lastBlockHash = RocksDBUtils.getInstance().getLastBlockHash();
         if (StringUtils.isBlank(lastBlockHash)) {
-            Block genesisBlock = Block.newGenesisBlock();
+            // 创建 coinBase 交易
+            Transaction coinbaseTX = Transaction.newCoinbaseTX(address, "");
+            Block genesisBlock = Block.newGenesisBlock(coinbaseTX);
             lastBlockHash = genesisBlock.getHash();
             RocksDBUtils.getInstance().putBlock(genesisBlock);
             RocksDBUtils.getInstance().putLastBlockHash(lastBlockHash);
@@ -35,18 +39,18 @@ public class Blockchain {
         return new Blockchain(lastBlockHash);
     }
 
-    /**
-     * <p> 添加区块  </p>
-     *
-     * @param data
-     */
-    public void addBlock(String data) throws Exception {
-        String lastBlockHash = RocksDBUtils.getInstance().getLastBlockHash();
-        if (StringUtils.isBlank(lastBlockHash)) {
-            throw new Exception("Fail to add block into blockchain ! ");
-        }
-        this.addBlock(Block.newBlock(lastBlockHash, data));
-    }
+//    /**
+//     * <p> 添加区块  </p>
+//     *
+//     * @param data
+//     */
+//    public void addBlock(String data) throws Exception {
+//        String lastBlockHash = RocksDBUtils.getInstance().getLastBlockHash();
+//        if (StringUtils.isBlank(lastBlockHash)) {
+//            throw new Exception("Fail to add block into blockchain ! ");
+//        }
+//        this.addBlock(Block.newBlock(lastBlockHash, data));
+//    }
 
     /**
      * <p> 添加区块  </p>
@@ -91,7 +95,7 @@ public class Blockchain {
             return RocksDBUtils.getInstance().getBlock(lastBlock.getPrevBlockHash()) != null;
         }
 
-        
+
         /**
          * 返回区块
          *
