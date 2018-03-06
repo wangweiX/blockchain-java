@@ -116,4 +116,18 @@ public class Blockchain {
     }
 
 
+    /**
+     * 寻找包含未被花费的交易输出的交易
+     *
+     * @param address 钱包地址
+     * @return
+     */
+    public static Transaction[] findUnspentTransactions(String address) {
+
+        // TODO
+
+        return null;
+    }
+
+
 }
