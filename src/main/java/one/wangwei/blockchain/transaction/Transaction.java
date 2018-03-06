@@ -63,6 +63,17 @@ public class Transaction {
         tx.setTxId();
         return tx;
     }
+    
+    /**
+     * 是否为 Coinbase 交易
+     *
+     * @return
+     */
+    public boolean isCoinbase() {
+        return this.getInputs().length == 1
+                && this.getInputs()[0].getTxId().length == 0
+                && this.getInputs()[0].getTxOutputIndex() == -1;
+    }
 
 
 }

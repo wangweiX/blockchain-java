@@ -1,8 +1,6 @@
 package one.wangwei.blockchain;
 
-import one.wangwei.blockchain.block.Block;
-import one.wangwei.blockchain.block.Blockchain;
-import one.wangwei.blockchain.pow.ProofOfWork;
+import org.apache.commons.lang3.ArrayUtils;
 
 /**
  * 测试
@@ -14,7 +12,14 @@ public class BlockchainTest {
 
     public static void main(String[] args) {
         try {
-            Blockchain blockchain = Blockchain.newBlockchain("wangwei");
+            int[] a = {};
+            for (int i = 0; i < 100; i++) {
+                a = ArrayUtils.add(a, i);
+            }
+            System.out.println(a);
+
+
+//            Blockchain blockchain = Blockchain.newBlockchain("wangwei");
 
 //            blockchain.addBlock("Send 1.0 BTC to wangwei");
 //            blockchain.addBlock("Send 2.5 more BTC to wangwei");

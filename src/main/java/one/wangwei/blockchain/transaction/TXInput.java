@@ -29,4 +29,15 @@ public class TXInput {
         this.txOutputIndex = txOutputIndex;
         this.scriptSig = scriptSig;
     }
+
+    /**
+     * 判断解锁数据是否能够解锁交易输出
+     *
+     * @param unlockingData
+     * @return
+     */
+    public boolean canUnlockOutputWith(String unlockingData) {
+        return this.getScriptSig().endsWith(unlockingData);
+    }
+
 }
