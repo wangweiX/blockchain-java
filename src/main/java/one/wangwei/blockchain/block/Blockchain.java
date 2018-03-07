@@ -2,6 +2,7 @@ package one.wangwei.blockchain.block;
 
 import lombok.Getter;
 import one.wangwei.blockchain.transaction.TXInput;
+import one.wangwei.blockchain.transaction.TXOutput;
 import one.wangwei.blockchain.transaction.Transaction;
 import one.wangwei.blockchain.util.RocksDBUtils;
 import org.apache.commons.codec.binary.Hex;
@@ -32,7 +33,7 @@ public class Blockchain {
      * @param address 钱包地址
      * @return
      */
-    public static Blockchain newBlockchain(String address) throws Exception {
+    public static Blockchain createBlockchain(String address) throws Exception {
         String lastBlockHash = RocksDBUtils.getInstance().getLastBlockHash();
         if (StringUtils.isBlank(lastBlockHash)) {
             // 创建 coinBase 交易
@@ -192,4 +193,28 @@ public class Blockchain {
         }
         return spentTXOs;
     }
+
+
+    /**
+     * 查找钱包地址对应的UTXO
+     *
+     * @param address
+     * @return
+     */
+    public TXOutput[] findUTXO(String address) throws Exception {
+        Transaction[] txs = this.findUnspentTransactions(address);
+        if (txs == null || txs.length == 0) {
+            return new TXOutput[]{};
+        }
+        TXOutput[] result = {};
+        for (Transaction tx : txs) {
+            for (TXOutput txOutput : tx.getOutputs()) {
+                if (txOutput.canBeUnlockedWith(address)) {
+                    result = ArrayUtils.add(result, txOutput);
+                }
+            }
+        }
+        return result;
+    }
+
 }
