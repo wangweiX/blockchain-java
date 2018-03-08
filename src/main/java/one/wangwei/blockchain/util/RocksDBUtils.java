@@ -95,4 +95,12 @@ public class RocksDBUtils {
         return (Block) SerializeUtils.deserialize(rocksDB.get(key));
     }
 
+    /**
+     * 关闭数据库
+     */
+    public void closeDB() {
+        if (rocksDB != null) {
+            rocksDB.close();
+        }
+    }
 }
