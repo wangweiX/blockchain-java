@@ -1,8 +1,6 @@
 package one.wangwei.blockchain;
 
-import one.wangwei.blockchain.block.Block;
-import one.wangwei.blockchain.block.Blockchain;
-import one.wangwei.blockchain.pow.ProofOfWork;
+import one.wangwei.blockchain.cli.CLI;
 
 /**
  * 测试
@@ -14,24 +12,11 @@ public class BlockchainTest {
 
     public static void main(String[] args) {
         try {
-            Blockchain blockchain = Blockchain.newBlockchain();
-
-            blockchain.addBlock("Send 1.0 BTC to wangwei");
-            blockchain.addBlock("Send 2.5 more BTC to wangwei");
-            blockchain.addBlock("Send 3.5 more BTC to wangwei");
-
-            for (Blockchain.BlockchainIterator iterator = blockchain.getBlockchainIterator(); iterator.hashNext(); ) {
-                Block block = iterator.next();
-
-                if (block != null) {
-                    boolean validate = ProofOfWork.newProofOfWork(block).validate();
-                    System.out.println(block.toString() + ", validate = " + validate);
-                }
-            }
-
+            String argss[] = {"-addblock", "Send 1.0 BTC to wangwei"};
+            CLI cli = new CLI(argss);
+            cli.parse();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
 }

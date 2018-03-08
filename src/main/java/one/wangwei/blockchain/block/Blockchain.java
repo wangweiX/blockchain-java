@@ -111,5 +111,4 @@ public class Blockchain {
         return new BlockchainIterator(lastBlockHash);
     }
 
-
 }
