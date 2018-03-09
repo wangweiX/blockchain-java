@@ -1,6 +1,7 @@
 package one.wangwei.blockchain.block;
 
 import lombok.Getter;
+import one.wangwei.blockchain.transaction.SpendableOutputResult;
 import one.wangwei.blockchain.transaction.TXInput;
 import one.wangwei.blockchain.transaction.TXOutput;
 import one.wangwei.blockchain.transaction.Transaction;
@@ -46,18 +47,19 @@ public class Blockchain {
         return new Blockchain(lastBlockHash);
     }
 
-//    /**
-//     * <p> 添加区块  </p>
-//     *
-//     * @param data
-//     */
-//    public void addBlock(String data) throws Exception {
-//        String lastBlockHash = RocksDBUtils.getInstance().getLastBlockHash();
-//        if (StringUtils.isBlank(lastBlockHash)) {
-//            throw new Exception("Fail to add block into blockchain ! ");
-//        }
-//        this.addBlock(Block.newBlock(lastBlockHash, data));
-//    }
+    /**
+     * 打包交易，进行挖矿
+     *
+     * @param transactions
+     */
+    public void mineBlock(Transaction[] transactions) throws Exception {
+        String lastBlockHash = RocksDBUtils.getInstance().getLastBlockHash();
+        if (lastBlockHash == null) {
+            throw new Exception("ERROR: Fail to get last block hash ! ");
+        }
+        Block block = Block.newBlock(lastBlockHash, transactions);
+        this.addBlock(block);
+    }
 
     /**
      * <p> 添加区块  </p>
@@ -124,38 +126,64 @@ public class Blockchain {
 
 
     /**
-     * 寻找包含未被花费的交易输出的交易
+     * 查找钱包地址对应的所有UTXO
      *
      * @param address 钱包地址
      * @return
      */
-    public Transaction[] findUnspentTransactions(String address) throws Exception {
+    public TXOutput[] findUTXO(String address) throws Exception {
+        Transaction[] unspentTxs = this.findUnspentTransactions(address);
+        TXOutput[] utxos = {};
+        if (unspentTxs == null || unspentTxs.length == 0) {
+            return utxos;
+        }
+        for (Transaction tx : unspentTxs) {
+            for (TXOutput txOutput : tx.getOutputs()) {
+                if (txOutput.canBeUnlockedWith(address)) {
+                    utxos = ArrayUtils.add(utxos, txOutput);
+                }
+            }
+        }
+        return utxos;
+    }
+
+
+    /**
+     * 查找钱包地址对应的所有未花费的交易
+     *
+     * @param address 钱包地址
+     * @return
+     */
+    private Transaction[] findUnspentTransactions(String address) throws Exception {
         Map<String, int[]> allSpentTXOs = this.getAllSpentTXOs(address);
-        Transaction[] unspentTx = {};
+        Transaction[] unspentTxs = {};
 
-        // 再次遍历所有区块中的交易输出，如果
+        if (allSpentTXOs == null || allSpentTXOs.isEmpty()) {
+            return unspentTxs;
+        }
 
+        // 再次遍历所有区块中的交易输出
         for (BlockchainIterator blockchainIterator = this.getBlockchainIterator(); blockchainIterator.hashNext(); ) {
             Block block = blockchainIterator.next();
             for (Transaction transaction : block.getTransactions()) {
 
                 String txId = Hex.encodeHexString(transaction.getTxId());
 
-                int[] spendTXOs = allSpentTXOs.get(txId);
+                int[] spentOutIndexArray = allSpentTXOs.get(txId);
 
                 for (int outIndex = 0; outIndex < transaction.getOutputs().length; outIndex++) {
-                    if (spendTXOs != null && ArrayUtils.contains(spendTXOs, outIndex)) {
+                    if (spentOutIndexArray != null && ArrayUtils.contains(spentOutIndexArray, outIndex)) {
                         continue;
                     }
 
-                    // 保存不存在 allSpentTXOs 中的交易输出
+                    // 保存不存在 allSpentTXOs 中的交易
                     if (transaction.getOutputs()[outIndex].canBeUnlockedWith(address)) {
-                        unspentTx = ArrayUtils.add(unspentTx, transaction);
+                        unspentTxs = ArrayUtils.add(unspentTxs, transaction);
                     }
                 }
             }
         }
-        return unspentTx;
+        return unspentTxs;
     }
 
 
@@ -196,25 +224,40 @@ public class Blockchain {
 
 
     /**
-     * 查找钱包地址对应的UTXO
+     * 寻找能够花费的交易
      *
-     * @param address
-     * @return
+     * @param address 钱包地址
+     * @param amount  花费金额
      */
-    public TXOutput[] findUTXO(String address) throws Exception {
-        Transaction[] txs = this.findUnspentTransactions(address);
-        if (txs == null || txs.length == 0) {
-            return new TXOutput[]{};
-        }
-        TXOutput[] result = {};
-        for (Transaction tx : txs) {
-            for (TXOutput txOutput : tx.getOutputs()) {
-                if (txOutput.canBeUnlockedWith(address)) {
-                    result = ArrayUtils.add(result, txOutput);
+    public SpendableOutputResult findSpendableOutputs(String address, int amount) throws Exception {
+        Transaction[] unspentTXs = this.findUnspentTransactions(address);
+        int accumulated = 0;
+        Map<String, int[]> unspentOuts = new HashMap<>();
+        for (Transaction tx : unspentTXs) {
+
+            String txId = Hex.encodeHexString(tx.getTxId());
+
+            for (int outId = 0; outId < tx.getOutputs().length; outId++) {
+
+                TXOutput txOutput = tx.getOutputs()[outId];
+
+                if (txOutput.canBeUnlockedWith(address) && accumulated < amount) {
+                    accumulated += txOutput.getValue();
+
+                    int[] outIds = unspentOuts.get(txId);
+                    if (outIds == null) {
+                        outIds = new int[]{outId};
+                    } else {
+                        outIds = ArrayUtils.add(outIds, outId);
+                    }
+                    unspentOuts.put(txId, outIds);
+                    if (accumulated > amount) {
+                        break;
+                    }
                 }
             }
         }
-        return result;
+        return new SpendableOutputResult(accumulated, unspentOuts);
     }
 
 }

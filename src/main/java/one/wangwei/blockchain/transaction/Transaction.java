@@ -1,9 +1,15 @@
 package one.wangwei.blockchain.transaction;
 
 import lombok.Data;
+import one.wangwei.blockchain.block.Blockchain;
 import one.wangwei.blockchain.util.SerializeUtils;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * 交易
@@ -63,7 +69,7 @@ public class Transaction {
         tx.setTxId();
         return tx;
     }
-    
+
     /**
      * 是否为 Coinbase 交易
      *
@@ -76,4 +82,44 @@ public class Transaction {
     }
 
 
+    /**
+     * 从 from 向  to 支付一定的 amount 的金额
+     *
+     * @param from       支付钱包地址
+     * @param to         收款钱包地址
+     * @param amount     交易金额
+     * @param blockchain 区块链
+     * @return
+     */
+    public static Transaction newUTXOTransaction(String from, String to, int amount, Blockchain blockchain) throws Exception {
+        SpendableOutputResult result = blockchain.findSpendableOutputs(from, amount);
+        int accumulated = result.getAccumulated();
+        Map<String, int[]> unspentOuts = result.getUnspentOuts();
+
+        if (accumulated < amount) {
+            throw new Exception("ERROR: Not enough funds");
+        }
+        Iterator<Map.Entry<String, int[]>> iterator = unspentOuts.entrySet().iterator();
+
+        TXInput[] txInputs = {};
+        while (iterator.hasNext()) {
+            Map.Entry<String, int[]> entry = iterator.next();
+            String txIdStr = entry.getKey();
+            int[] outIdxs = entry.getValue();
+            byte[] txId = Hex.decodeHex(txIdStr);
+            for (int outIndex : outIdxs) {
+                txInputs = ArrayUtils.add(txInputs, new TXInput(txId, outIndex, from));
+            }
+        }
+
+        TXOutput[] txOutput = {};
+        txOutput = ArrayUtils.add(txOutput, new TXOutput(amount, to));
+        if (accumulated > amount) {
+            txOutput = ArrayUtils.add(txOutput, new TXOutput((amount - accumulated), from));
+        }
+
+        Transaction newTx = new Transaction(null, txInputs, txOutput);
+        newTx.setTxId();
+        return newTx;
+    }
 }
