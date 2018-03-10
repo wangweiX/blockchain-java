@@ -261,7 +261,7 @@ public class Blockchain {
                         outIds = ArrayUtils.add(outIds, outId);
                     }
                     unspentOuts.put(txId, outIds);
-                    if (accumulated > amount) {
+                    if (accumulated >= amount) {
                         break;
                     }
                 }
