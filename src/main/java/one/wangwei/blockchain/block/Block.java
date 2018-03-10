@@ -3,6 +3,7 @@ package one.wangwei.blockchain.block;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import one.wangwei.blockchain.pow.PowResult;
 import one.wangwei.blockchain.pow.ProofOfWork;
 import one.wangwei.blockchain.transaction.Transaction;
@@ -20,6 +21,7 @@ import java.time.Instant;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 public class Block {
 
     /**
@@ -81,17 +83,5 @@ public class Block {
             txIdArrays[i] = this.getTransactions()[i].getTxId();
         }
         return DigestUtils.sha256(ByteUtils.merge(txIdArrays));
-    }
-
-
-    @Override
-    public String toString() {
-        return "Block{" +
-                "hash='" + hash + '\'' +
-                ", prevBlockHash='" + prevBlockHash + '\'' +
-                ", transactions='" + transactions + '\'' +
-                ", timeStamp=" + timeStamp +
-                ", nonce=" + nonce +
-                '}';
     }
 }
