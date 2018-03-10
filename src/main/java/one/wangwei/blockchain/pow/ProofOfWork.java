@@ -1,6 +1,8 @@
 package one.wangwei.blockchain.pow;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import one.wangwei.blockchain.block.Block;
 import one.wangwei.blockchain.util.ByteUtils;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -15,6 +17,8 @@ import java.math.BigInteger;
  * @date 2018/02/04
  */
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class ProofOfWork {
 
     /**
@@ -31,10 +35,6 @@ public class ProofOfWork {
      */
     private BigInteger target;
 
-    private ProofOfWork(Block block, BigInteger target) {
-        this.block = block;
-        this.target = target;
-    }
 
     /**
      * 创建新的工作量证明，设定难度目标值

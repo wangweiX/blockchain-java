@@ -1,6 +1,8 @@
 package one.wangwei.blockchain.block;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import one.wangwei.blockchain.pow.PowResult;
 import one.wangwei.blockchain.pow.ProofOfWork;
 import one.wangwei.blockchain.transaction.Transaction;
@@ -16,6 +18,8 @@ import java.time.Instant;
  * @date 2018/02/02
  */
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class Block {
 
     /**
@@ -39,17 +43,6 @@ public class Block {
      */
     private long nonce;
 
-    public Block() {
-    }
-
-    public Block(String hash, String prevBlockHash, Transaction[] transactions, long timeStamp, long nonce) {
-        this();
-        this.hash = hash;
-        this.prevBlockHash = prevBlockHash;
-        this.transactions = transactions;
-        this.timeStamp = timeStamp;
-        this.nonce = nonce;
-    }
 
     /**
      * <p> 创建创世区块 </p>

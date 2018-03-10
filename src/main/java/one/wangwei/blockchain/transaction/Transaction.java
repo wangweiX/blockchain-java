@@ -1,6 +1,8 @@
 package one.wangwei.blockchain.transaction;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import one.wangwei.blockchain.block.Blockchain;
 import one.wangwei.blockchain.util.SerializeUtils;
 import org.apache.commons.codec.binary.Hex;
@@ -18,6 +20,8 @@ import java.util.Map;
  * @date 2017/03/04
  */
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class Transaction {
 
     private static final int SUBSIDY = 10;
@@ -35,15 +39,6 @@ public class Transaction {
      */
     private TXOutput[] outputs;
 
-    public Transaction() {
-    }
-
-    public Transaction(byte[] txId, TXInput[] inputs, TXOutput[] outputs) {
-        this();
-        this.txId = txId;
-        this.inputs = inputs;
-        this.outputs = outputs;
-    }
 
     /**
      * 设置交易ID

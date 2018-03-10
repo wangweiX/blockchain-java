@@ -1,6 +1,8 @@
 package one.wangwei.blockchain.transaction;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Map;
 
@@ -11,6 +13,8 @@ import java.util.Map;
  * @date 2018/03/09
  */
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class SpendableOutputResult {
 
     /**
@@ -22,8 +26,4 @@ public class SpendableOutputResult {
      */
     private Map<String, int[]> unspentOuts;
 
-    public SpendableOutputResult(int accumulated, Map<String, int[]> unspentOuts) {
-        this.accumulated = accumulated;
-        this.unspentOuts = unspentOuts;
-    }
 }

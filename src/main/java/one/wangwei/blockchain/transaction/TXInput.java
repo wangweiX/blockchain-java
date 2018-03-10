@@ -1,6 +1,8 @@
 package one.wangwei.blockchain.transaction;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * 交易输入
@@ -9,6 +11,8 @@ import lombok.Data;
  * @date 2017/03/04
  */
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class TXInput {
 
     /**
@@ -24,15 +28,6 @@ public class TXInput {
      */
     private String scriptSig;
 
-    public TXInput() {
-    }
-
-    public TXInput(byte[] txId, int txOutputIndex, String scriptSig) {
-        this();
-        this.txId = txId;
-        this.txOutputIndex = txOutputIndex;
-        this.scriptSig = scriptSig;
-    }
 
     /**
      * 判断解锁数据是否能够解锁交易输出

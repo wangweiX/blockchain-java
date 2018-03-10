@@ -1,6 +1,8 @@
 package one.wangwei.blockchain.pow;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * <p> 工作量计算结果 </p>
@@ -9,6 +11,8 @@ import lombok.Data;
  * @date 2018/02/04
  */
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class PowResult {
 
     /**
@@ -20,8 +24,4 @@ public class PowResult {
      */
     private String hash;
 
-    public PowResult(long nonce, String hash) {
-        this.nonce = nonce;
-        this.hash = hash;
-    }
 }

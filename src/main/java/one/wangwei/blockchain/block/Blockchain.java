@@ -1,6 +1,8 @@
 package one.wangwei.blockchain.block;
 
-import lombok.Getter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import one.wangwei.blockchain.transaction.SpendableOutputResult;
 import one.wangwei.blockchain.transaction.TXInput;
 import one.wangwei.blockchain.transaction.TXOutput;
@@ -19,14 +21,13 @@ import java.util.Map;
  * @author wangwei
  * @date 2018/02/02
  */
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class Blockchain {
 
-    @Getter
     private String lastBlockHash;
 
-    private Blockchain(String lastBlockHash) {
-        this.lastBlockHash = lastBlockHash;
-    }
 
     /**
      * 从 DB 从恢复区块链数据
