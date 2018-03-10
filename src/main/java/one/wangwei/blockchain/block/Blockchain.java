@@ -29,6 +29,20 @@ public class Blockchain {
     }
 
     /**
+     * 从 DB 从恢复区块链数据
+     *
+     * @return
+     * @throws Exception
+     */
+    public static Blockchain initBlockchainFromDB() throws Exception {
+        String lastBlockHash = RocksDBUtils.getInstance().getLastBlockHash();
+        if (lastBlockHash == null) {
+            throw new Exception("ERROR: Fail to init blockchain from db. ");
+        }
+        return new Blockchain(lastBlockHash);
+    }
+
+    /**
      * <p> 创建区块链 </p>
      *
      * @param address 钱包地址
@@ -66,7 +80,7 @@ public class Blockchain {
      *
      * @param block
      */
-    public void addBlock(Block block) throws Exception {
+    private void addBlock(Block block) throws Exception {
         RocksDBUtils.getInstance().putLastBlockHash(block.getHash());
         RocksDBUtils.getInstance().putBlock(block);
         this.lastBlockHash = block.getHash();
@@ -80,7 +94,7 @@ public class Blockchain {
 
         private String currentBlockHash;
 
-        public BlockchainIterator(String currentBlockHash) {
+        private BlockchainIterator(String currentBlockHash) {
             this.currentBlockHash = currentBlockHash;
         }
 
@@ -157,10 +171,6 @@ public class Blockchain {
     private Transaction[] findUnspentTransactions(String address) throws Exception {
         Map<String, int[]> allSpentTXOs = this.getAllSpentTXOs(address);
         Transaction[] unspentTxs = {};
-
-        if (allSpentTXOs == null || allSpentTXOs.isEmpty()) {
-            return unspentTxs;
-        }
 
         // 再次遍历所有区块中的交易输出
         for (BlockchainIterator blockchainIterator = this.getBlockchainIterator(); blockchainIterator.hashNext(); ) {

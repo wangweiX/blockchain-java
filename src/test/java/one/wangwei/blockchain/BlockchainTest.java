@@ -12,7 +12,7 @@ public class BlockchainTest {
 
     public static void main(String[] args) {
         try {
-            String[] argss = {"getBalance", "-address", "wangwei"};
+            String[] argss = {"send", "-from", "wangwei", "-to", "wangwei1", "-amount", "2"};
             CLI cli = new CLI(argss);
             cli.parse();
         } catch (Exception e) {

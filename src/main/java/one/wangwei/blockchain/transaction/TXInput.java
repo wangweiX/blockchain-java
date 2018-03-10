@@ -24,7 +24,11 @@ public class TXInput {
      */
     private String scriptSig;
 
+    public TXInput() {
+    }
+
     public TXInput(byte[] txId, int txOutputIndex, String scriptSig) {
+        this();
         this.txId = txId;
         this.txOutputIndex = txOutputIndex;
         this.scriptSig = scriptSig;

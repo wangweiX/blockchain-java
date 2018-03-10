@@ -7,6 +7,8 @@ import one.wangwei.blockchain.transaction.TXOutput;
 import one.wangwei.blockchain.transaction.Transaction;
 import one.wangwei.blockchain.util.RocksDBUtils;
 import org.apache.commons.cli.*;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 /**
  * 程序命令行工具入口
@@ -23,47 +25,17 @@ public class CLI {
         this.args = args;
 
         Option helpCmd = Option.builder("h").desc("show help").build();
+        options.addOption(helpCmd);
 
-        Option printchainCmd = Option.builder("printchain")
-                .desc("Print all the blocks of the blockchain")
-                .build();
+        Option address = Option.builder("address").hasArg(true).desc("Source wallet address").build();
+        Option sendFrom = Option.builder("from").hasArg(true).desc("Source wallet address").build();
+        Option sendTo = Option.builder("to").hasArg(true).desc("Destination wallet address").build();
+        Option sendAmount = Option.builder("amount").hasArg(true).desc("Amount to send").build();
 
-        Option sendCmd = Option.builder("send")
-                .argName("from").hasArg(true)
-                .argName("to").hasArg(true)
-                .argName("amount").hasArg(true)
-                .numberOfArgs(3)
-                .desc("Send AMOUNT of coins from FROM address to TO")
-                .build();
-
-        Option from = Option.builder("from").argName("address").build();
-
-
-
-        Option to = Option.builder("to").argName("address").build();
-        Option address = Option.builder("address").argName("address").build();
-
-        Option getBalanceCmd = Option.builder("getBalance")
-                .argName("address").hasArg(true)
-                .desc("Get balance of ADDRESS")
-                .build();
-
-        Option createblockchainCmd = Option.builder("createblockchain")
-                .argName("address").hasArg(true)
-                .desc("Create a blockchain and send genesis block reward to ADDRESS")
-                .build();
-
-
-        OptionGroup optionGroup = new OptionGroup();
-
-        options.addOption(helpCmd)
-                .addOption(printchainCmd)
-                .addOption(sendCmd)
-                .addOption(createblockchainCmd)
-                .addOption(getBalanceCmd)
-                .addOption(from)
-                .addOption(to)
-                .addOption(address);
+        options.addOption(address);
+        options.addOption(sendFrom);
+        options.addOption(sendTo);
+        options.addOption(sendAmount);
     }
 
     /**
@@ -74,28 +46,40 @@ public class CLI {
         try {
             CommandLineParser parser = new DefaultParser();
             CommandLine cmd = parser.parse(options, args);
-
-            if (cmd.hasOption("h")) {
-                help();
-            }
-            if (cmd.hasOption("address")) {
-
-            }
-            if (cmd.hasOption("getBalance")) {
-                String[] args = cmd.getArgs();
-                if (args == null || args.length < 1) {
-                    help();
-                }
-                for (String arg : args) {
-                    System.out.println(arg);
-                }
-            }
-            if (cmd.hasOption("createblockchain")) {
-                String address = cmd.getOptionValue("createblockchain");
-                Blockchain.createBlockchain(address);
-            }
-            if (cmd.hasOption("print")) {
-//                printChain();
+            switch (args[0]) {
+                case "createblockchain":
+                    String createblockchainAddress = cmd.getOptionValue("address");
+                    if (StringUtils.isBlank(createblockchainAddress)) {
+                        help();
+                    }
+                    this.createBlockchain(createblockchainAddress);
+                    break;
+                case "getbalance":
+                    String getBalanceAddress = cmd.getOptionValue("address");
+                    if (StringUtils.isBlank(getBalanceAddress)) {
+                        help();
+                    }
+                    this.getBalance(getBalanceAddress);
+                    break;
+                case "send":
+                    String sendFrom = cmd.getOptionValue("from");
+                    String sendTo = cmd.getOptionValue("to");
+                    String sendAmount = cmd.getOptionValue("amount");
+                    if (StringUtils.isBlank(sendFrom) ||
+                            StringUtils.isBlank(sendTo) ||
+                            !NumberUtils.isDigits(sendAmount)) {
+                        help();
+                    }
+                    this.send(sendFrom, sendTo, Integer.valueOf(sendAmount));
+                    break;
+                case "printchain":
+                    this.printChain();
+                    break;
+                case "h":
+                    this.help();
+                    break;
+                default:
+                    this.help();
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -122,7 +106,6 @@ public class CLI {
      */
     private void createBlockchain(String address) throws Exception {
         Blockchain.createBlockchain(address);
-        RocksDBUtils.getInstance().closeDB();
         System.out.println("Done ! ");
     }
 
@@ -162,16 +145,19 @@ public class CLI {
      * 打印帮助信息
      */
     private void help() {
-        HelpFormatter helpFormatter = new HelpFormatter();
-        helpFormatter.printHelp("Main", options);
+        System.out.println("Usage:");
+        System.out.println("  getbalance -address ADDRESS - Get balance of ADDRESS");
+        System.out.println("  createblockchain -address ADDRESS - Create a blockchain and send genesis block reward to ADDRESS");
+        System.out.println("  printchain - Print all the blocks of the blockchain");
+        System.out.println("  send -from FROM -to TO -amount AMOUNT - Send AMOUNT of coins from FROM address to TO");
         System.exit(0);
     }
 
     /**
      * 打印出区块链中的所有区块
      */
-    private void printChain(String address) throws Exception {
-        Blockchain blockchain = Blockchain.createBlockchain(address);
+    private void printChain() throws Exception {
+        Blockchain blockchain = Blockchain.initBlockchainFromDB();
         for (Blockchain.BlockchainIterator iterator = blockchain.getBlockchainIterator(); iterator.hashNext(); ) {
             Block block = iterator.next();
             if (block != null) {
@@ -180,6 +166,5 @@ public class CLI {
             }
         }
     }
-
 
 }

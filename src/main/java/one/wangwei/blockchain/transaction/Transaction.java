@@ -35,7 +35,11 @@ public class Transaction {
      */
     private TXOutput[] outputs;
 
+    public Transaction() {
+    }
+
     public Transaction(byte[] txId, TXInput[] inputs, TXOutput[] outputs) {
+        this();
         this.txId = txId;
         this.inputs = inputs;
         this.outputs = outputs;
@@ -115,7 +119,7 @@ public class Transaction {
         TXOutput[] txOutput = {};
         txOutput = ArrayUtils.add(txOutput, new TXOutput(amount, to));
         if (accumulated > amount) {
-            txOutput = ArrayUtils.add(txOutput, new TXOutput((amount - accumulated), from));
+            txOutput = ArrayUtils.add(txOutput, new TXOutput((accumulated - amount), from));
         }
 
         Transaction newTx = new Transaction(null, txInputs, txOutput);
