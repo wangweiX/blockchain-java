@@ -61,6 +61,13 @@
             <version>5.9.2</version>
         </dependency>
 
+        <!-- 加密算法 -->
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
+            <version>1.59</version>
+        </dependency>
+
     </dependencies>
 
     <build>
