@@ -26,9 +26,8 @@ public final class Base58Check {
         return rawBytesToBase58(addCheckHash(data));
     }
 
-
     // Directly converts to Base58Check without adding a checksum.
-    static String rawBytesToBase58(byte[] data) {
+    public static String rawBytesToBase58(byte[] data) {
         // Convert to base-58 string
         StringBuilder sb = new StringBuilder();
         BigInteger num = new BigInteger(1, data);

@@ -3,7 +3,6 @@ package one.wangwei.blockchain.wallet;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import one.wangwei.blockchain.crypto.Base58Check;
-import one.wangwei.blockchain.ecdsa.ECKeyPair;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.bouncycastle.crypto.digests.RIPEMD160Digest;
 import org.bouncycastle.jce.ECNamedCurveTable;
@@ -11,12 +10,8 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.jce.spec.ECParameterSpec;
 import org.bouncycastle.util.Arrays;
 
-import javax.xml.bind.DatatypeConverter;
 import java.io.ByteArrayOutputStream;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.SecureRandom;
-import java.security.Security;
+import java.security.*;
 
 /**
  * 钱包
@@ -28,17 +23,20 @@ import java.security.Security;
 @AllArgsConstructor
 public class Wallet {
 
-    // 校验码长度
+    /**
+     * 校验码长度
+     */
     private static final int ADDRESS_CHECKSUM_LEN = 4;
 
     /**
      * 私钥
      */
-    private String privateKey;
+    private PrivateKey privateKey;
     /**
      * 公钥
      */
-    private String publicKey;
+    private PublicKey publicKey;
+
 
     public Wallet() {
         initWallet();
@@ -49,9 +47,9 @@ public class Wallet {
      */
     private void initWallet() {
         try {
-            ECKeyPair ecKeyPair = ECKeyPair.createECKeyPair();
-            this.privateKey = ecKeyPair.getPrivateKey();
-            this.publicKey = ecKeyPair.getPublicKey();
+            KeyPair keyPair = newKeyPair();
+            this.privateKey = keyPair.getPrivate();
+            this.publicKey = keyPair.getPublic();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -80,11 +78,8 @@ public class Wallet {
      * @return
      */
     public String getAddress() throws Exception {
-        //Convert public key into byte array and prepend 0x04 byte to front
-        byte[] pubKeyBytes = DatatypeConverter.parseHexBinary("04" + publicKey);
-
         //1. 先对公钥做 sha256 处理
-        byte[] shaHashedKey = DigestUtils.sha256(pubKeyBytes);
+        byte[] shaHashedKey = DigestUtils.sha256(this.getPublicKey().getEncoded());
 
         //2. 再执行 RIPEMD-160 hash 处理
         byte[] ripemdHashedKey = ripeMD160Hash(shaHashedKey);
@@ -103,7 +98,7 @@ public class Wallet {
         byte[] binaryAddress = addrStream.toByteArray();
 
         //6. 执行Base58转换处理
-        return Base58Check.bytesToBase58(binaryAddress);
+        return Base58Check.rawBytesToBase58(binaryAddress);
     }
 
 
