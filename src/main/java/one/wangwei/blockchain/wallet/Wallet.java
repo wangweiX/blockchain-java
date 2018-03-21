@@ -2,13 +2,11 @@ package one.wangwei.blockchain.wallet;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import one.wangwei.blockchain.crypto.Base58Check;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.bouncycastle.crypto.digests.RIPEMD160Digest;
+import one.wangwei.blockchain.util.Base58Check;
+import one.wangwei.blockchain.util.BtcAddressUtils;
 import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.jce.spec.ECParameterSpec;
-import org.bouncycastle.util.Arrays;
 
 import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
@@ -80,11 +78,8 @@ public class Wallet implements Serializable {
      * @return
      */
     public String getAddress() throws Exception {
-        //1. 先对公钥做 sha256 处理
-        byte[] shaHashedKey = DigestUtils.sha256(this.getPublicKey().getEncoded());
-
-        //2. 再执行 RIPEMD-160 hash 处理
-        byte[] ripemdHashedKey = ripeMD160Hash(shaHashedKey);
+        // 获取 ripemdHashedKey
+        byte[] ripemdHashedKey = BtcAddressUtils.ripeMD160Hash(this.getPublicKey().getEncoded());
 
         //3. 添加版本 0x00
         ByteArrayOutputStream addrStream = new ByteArrayOutputStream();
@@ -93,7 +88,7 @@ public class Wallet implements Serializable {
         byte[] versionedPayload = addrStream.toByteArray();
 
         //4. 计算校验码
-        byte[] checksum = checksum(versionedPayload);
+        byte[] checksum = BtcAddressUtils.checksum(versionedPayload);
 
         //5. 得到 version + paylod + checksum 的组合
         addrStream.write(checksum);
@@ -101,34 +96,6 @@ public class Wallet implements Serializable {
 
         //6. 执行Base58转换处理
         return Base58Check.rawBytesToBase58(binaryAddress);
-    }
-
-
-    /**
-     * 计算 RIPEMD160 Hash值
-     *
-     * @param pubKey
-     * @return
-     */
-    private byte[] ripeMD160Hash(byte[] pubKey) {
-        RIPEMD160Digest ripemd160 = new RIPEMD160Digest();
-        ripemd160.update(pubKey, 0, pubKey.length);
-        byte[] output = new byte[ripemd160.getDigestSize()];
-        ripemd160.doFinal(output, 0);
-        return output;
-    }
-
-
-    /**
-     * 生成公钥的校验码
-     *
-     * @param payload
-     * @return
-     */
-    public byte[] checksum(byte[] payload) {
-        byte[] firstSHA = DigestUtils.sha256(payload);
-        byte[] secondSHA = DigestUtils.sha256(firstSHA);
-        return Arrays.copyOfRange(secondSHA, 0, 4);
     }
 
 }

@@ -2,7 +2,7 @@ package one.wangwei.blockchain.cli;
 
 import one.wangwei.blockchain.block.Block;
 import one.wangwei.blockchain.block.Blockchain;
-import one.wangwei.blockchain.crypto.Base58Check;
+import one.wangwei.blockchain.util.Base58Check;
 import one.wangwei.blockchain.pow.ProofOfWork;
 import one.wangwei.blockchain.transaction.TXOutput;
 import one.wangwei.blockchain.transaction.Transaction;
@@ -189,6 +189,8 @@ public class CLI {
      */
     private void help() {
         System.out.println("Usage:");
+        System.out.println("  createwallet - create wallet");
+        System.out.println("  printaddresses - print all wallet address");
         System.out.println("  getbalance -address ADDRESS - Get balance of ADDRESS");
         System.out.println("  createblockchain -address ADDRESS - Create a blockchain and send genesis block reward to ADDRESS");
         System.out.println("  printchain - Print all the blocks of the blockchain");

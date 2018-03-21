@@ -6,7 +6,7 @@
  * https://github.com/nayuki/Bitcoin-Cryptography-Library
  */
 
-package one.wangwei.blockchain.crypto;
+package one.wangwei.blockchain.util;
 
 import java.util.Arrays;
 import java.util.Objects;

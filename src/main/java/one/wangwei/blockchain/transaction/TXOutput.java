@@ -3,7 +3,7 @@ package one.wangwei.blockchain.transaction;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import one.wangwei.blockchain.crypto.Base58Check;
+import one.wangwei.blockchain.util.Base58Check;
 
 import java.util.Arrays;
 
@@ -35,21 +35,10 @@ public class TXOutput {
      * @return
      */
     public static TXOutput newTXOutput(int value, String address) {
-        TXOutput txOutput = new TXOutput(value, null);
-        txOutput.lock(address);
-        return txOutput;
-    }
-
-    /**
-     * 使用钱包地址锁住交易输出
-     *
-     * @param address
-     */
-    public void lock(String address) {
         // 反向转化为 byte 数组
         byte[] versionedPayload = Base58Check.base58ToBytes(address);
-        // 去除版本号
-        this.pubKeyHash = Arrays.copyOfRange(versionedPayload, 1, versionedPayload.length);
+        byte[] pubKeyHash = Arrays.copyOfRange(versionedPayload, 1, versionedPayload.length);
+        return new TXOutput(value, pubKeyHash);
     }
 
     /**

@@ -120,7 +120,7 @@ public class WalletUtils {
     /**
      * 保存钱包数据
      */
-    public void saveToDisk() {
+    private void saveToDisk() {
         try {
             if (this.walletMap == null) {
                 throw new Exception("ERROR: Fail to save wallet to file ! There isn't data in wallet maps. ");
@@ -136,7 +136,7 @@ public class WalletUtils {
     /**
      * 加载钱包数据
      */
-    public void loadFromDisk() {
+    private void loadFromDisk() {
         try {
             File file = new File(WALLET_FILE);
             if (!file.exists() || !file.isFile()) {

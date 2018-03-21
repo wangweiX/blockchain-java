@@ -3,7 +3,7 @@ package one.wangwei.blockchain.transaction;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.commons.codec.digest.DigestUtils;
+import one.wangwei.blockchain.util.BtcAddressUtils;
 
 import java.util.Arrays;
 
@@ -43,7 +43,7 @@ public class TXInput {
      * @return
      */
     public boolean usesKey(byte[] pubKeyHash) {
-        byte[] lockingHash = DigestUtils.sha256(this.getPubKey());
+        byte[] lockingHash = BtcAddressUtils.ripeMD160Hash(this.getPubKey());
         return Arrays.equals(lockingHash, pubKeyHash);
     }
 

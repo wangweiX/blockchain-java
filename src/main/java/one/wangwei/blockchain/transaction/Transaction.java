@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import one.wangwei.blockchain.block.Blockchain;
+import one.wangwei.blockchain.util.BtcAddressUtils;
 import one.wangwei.blockchain.util.SerializeUtils;
 import one.wangwei.blockchain.wallet.Wallet;
 import one.wangwei.blockchain.wallet.WalletUtils;
@@ -95,9 +96,10 @@ public class Transaction {
     public static Transaction newUTXOTransaction(String from, String to, int amount, Blockchain blockchain) throws Exception {
         // 获取钱包
         Wallet senderWallet = WalletUtils.getInstance().getWallet(from);
-        byte[] senderPubKey = senderWallet.getPublicKey().getEncoded();
+        byte[] pubKey = senderWallet.getPublicKey().getEncoded();
+        byte[] pubKeyHash = BtcAddressUtils.ripeMD160Hash(pubKey);
 
-        SpendableOutputResult result = blockchain.findSpendableOutputs(DigestUtils.sha256(senderPubKey), amount);
+        SpendableOutputResult result = blockchain.findSpendableOutputs(pubKeyHash, amount);
         int accumulated = result.getAccumulated();
         Map<String, int[]> unspentOuts = result.getUnspentOuts();
 
@@ -106,7 +108,6 @@ public class Transaction {
         }
         Iterator<Map.Entry<String, int[]>> iterator = unspentOuts.entrySet().iterator();
 
-
         TXInput[] txInputs = {};
         while (iterator.hasNext()) {
             Map.Entry<String, int[]> entry = iterator.next();
@@ -114,7 +115,7 @@ public class Transaction {
             int[] outIdxs = entry.getValue();
             byte[] txId = Hex.decodeHex(txIdStr);
             for (int outIndex : outIdxs) {
-                txInputs = ArrayUtils.add(txInputs, new TXInput(txId, outIndex, null, senderPubKey));
+                txInputs = ArrayUtils.add(txInputs, new TXInput(txId, outIndex, null, pubKey));
             }
         }
 
