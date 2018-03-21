@@ -42,7 +42,7 @@ public class TXOutput {
     }
 
     /**
-     * 检查交易输出是否能够指定的公钥使用
+     * 检查交易输出是否能够使用指定的公钥
      *
      * @param pubKeyHash
      * @return

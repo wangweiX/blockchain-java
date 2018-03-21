@@ -37,7 +37,7 @@ public class TXInput {
 
 
     /**
-     * UsesKey checks whether the address initiated the transaction
+     * 检查公钥hash是否用于交易输入
      *
      * @param pubKeyHash
      * @return

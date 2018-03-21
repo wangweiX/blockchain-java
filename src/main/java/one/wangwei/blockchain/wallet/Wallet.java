@@ -78,23 +78,23 @@ public class Wallet implements Serializable {
      * @return
      */
     public String getAddress() throws Exception {
-        // 获取 ripemdHashedKey
+        // 1. 获取 ripemdHashedKey
         byte[] ripemdHashedKey = BtcAddressUtils.ripeMD160Hash(this.getPublicKey().getEncoded());
 
-        //3. 添加版本 0x00
+        // 2. 添加版本 0x00
         ByteArrayOutputStream addrStream = new ByteArrayOutputStream();
         addrStream.write((byte) 0);
         addrStream.write(ripemdHashedKey);
         byte[] versionedPayload = addrStream.toByteArray();
 
-        //4. 计算校验码
+        // 3. 计算校验码
         byte[] checksum = BtcAddressUtils.checksum(versionedPayload);
 
-        //5. 得到 version + paylod + checksum 的组合
+        // 4. 得到 version + paylod + checksum 的组合
         addrStream.write(checksum);
         byte[] binaryAddress = addrStream.toByteArray();
 
-        //6. 执行Base58转换处理
+        // 5. 执行Base58转换处理
         return Base58Check.rawBytesToBase58(binaryAddress);
     }
 
