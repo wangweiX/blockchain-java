@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import one.wangwei.blockchain.block.Blockchain;
 import one.wangwei.blockchain.util.SerializeUtils;
+import one.wangwei.blockchain.wallet.Wallet;
+import one.wangwei.blockchain.wallet.WalletUtils;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -59,9 +61,9 @@ public class Transaction {
             data = String.format("Reward to '%s'", to);
         }
         // 创建交易输入
-        TXInput txInput = new TXInput(new byte[]{}, -1, data);
+        TXInput txInput = new TXInput(new byte[]{}, -1, null, data.getBytes());
         // 创建交易输出
-        TXOutput txOutput = new TXOutput(SUBSIDY, to);
+        TXOutput txOutput = TXOutput.newTXOutput(SUBSIDY, to);
         // 创建交易
         Transaction tx = new Transaction(null, new TXInput[]{txInput}, new TXOutput[]{txOutput});
         // 设置交易ID
@@ -91,7 +93,11 @@ public class Transaction {
      * @return
      */
     public static Transaction newUTXOTransaction(String from, String to, int amount, Blockchain blockchain) throws Exception {
-        SpendableOutputResult result = blockchain.findSpendableOutputs(from, amount);
+        // 获取钱包
+        Wallet senderWallet = WalletUtils.getInstance().getWallet(from);
+        byte[] senderPubKey = senderWallet.getPublicKey().getEncoded();
+
+        SpendableOutputResult result = blockchain.findSpendableOutputs(DigestUtils.sha256(senderPubKey), amount);
         int accumulated = result.getAccumulated();
         Map<String, int[]> unspentOuts = result.getUnspentOuts();
 
@@ -100,6 +106,7 @@ public class Transaction {
         }
         Iterator<Map.Entry<String, int[]>> iterator = unspentOuts.entrySet().iterator();
 
+
         TXInput[] txInputs = {};
         while (iterator.hasNext()) {
             Map.Entry<String, int[]> entry = iterator.next();
@@ -107,14 +114,14 @@ public class Transaction {
             int[] outIdxs = entry.getValue();
             byte[] txId = Hex.decodeHex(txIdStr);
             for (int outIndex : outIdxs) {
-                txInputs = ArrayUtils.add(txInputs, new TXInput(txId, outIndex, from));
+                txInputs = ArrayUtils.add(txInputs, new TXInput(txId, outIndex, null, senderPubKey));
             }
         }
 
         TXOutput[] txOutput = {};
-        txOutput = ArrayUtils.add(txOutput, new TXOutput(amount, to));
+        txOutput = ArrayUtils.add(txOutput, TXOutput.newTXOutput(amount, to));
         if (accumulated > amount) {
-            txOutput = ArrayUtils.add(txOutput, new TXOutput((accumulated - amount), from));
+            txOutput = ArrayUtils.add(txOutput, TXOutput.newTXOutput((accumulated - amount), from));
         }
 
         Transaction newTx = new Transaction(null, txInputs, txOutput);

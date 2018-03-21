@@ -143,18 +143,18 @@ public class Blockchain {
     /**
      * 查找钱包地址对应的所有UTXO
      *
-     * @param address 钱包地址
+     * @param pubKeyHash 钱包公钥Hash
      * @return
      */
-    public TXOutput[] findUTXO(String address) throws Exception {
-        Transaction[] unspentTxs = this.findUnspentTransactions(address);
+    public TXOutput[] findUTXO(byte[] pubKeyHash) throws Exception {
+        Transaction[] unspentTxs = this.findUnspentTransactions(pubKeyHash);
         TXOutput[] utxos = {};
         if (unspentTxs == null || unspentTxs.length == 0) {
             return utxos;
         }
         for (Transaction tx : unspentTxs) {
             for (TXOutput txOutput : tx.getOutputs()) {
-                if (txOutput.canBeUnlockedWith(address)) {
+                if (txOutput.isLockedWithKey(pubKeyHash)) {
                     utxos = ArrayUtils.add(utxos, txOutput);
                 }
             }
@@ -166,11 +166,11 @@ public class Blockchain {
     /**
      * 查找钱包地址对应的所有未花费的交易
      *
-     * @param address 钱包地址
+     * @param pubKeyHash 钱包公钥Hash
      * @return
      */
-    private Transaction[] findUnspentTransactions(String address) throws Exception {
-        Map<String, int[]> allSpentTXOs = this.getAllSpentTXOs(address);
+    private Transaction[] findUnspentTransactions(byte[] pubKeyHash) throws Exception {
+        Map<String, int[]> allSpentTXOs = this.getAllSpentTXOs(pubKeyHash);
         Transaction[] unspentTxs = {};
 
         // 再次遍历所有区块中的交易输出
@@ -188,7 +188,7 @@ public class Blockchain {
                     }
 
                     // 保存不存在 allSpentTXOs 中的交易
-                    if (transaction.getOutputs()[outIndex].canBeUnlockedWith(address)) {
+                    if (transaction.getOutputs()[outIndex].isLockedWithKey(pubKeyHash)) {
                         unspentTxs = ArrayUtils.add(unspentTxs, transaction);
                     }
                 }
@@ -201,11 +201,11 @@ public class Blockchain {
     /**
      * 从交易输入中查询区块链中所有已被花费了的交易输出
      *
-     * @param address 钱包地址
+     * @param pubKeyHash 钱包公钥Hash
      * @return 交易ID以及对应的交易输出下标地址
      * @throws Exception
      */
-    private Map<String, int[]> getAllSpentTXOs(String address) throws Exception {
+    private Map<String, int[]> getAllSpentTXOs(byte[] pubKeyHash) throws Exception {
         // 定义TxId ——> spentOutIndex[]，存储交易ID与已被花费的交易输出数组索引值
         Map<String, int[]> spentTXOs = new HashMap<>();
         for (BlockchainIterator blockchainIterator = this.getBlockchainIterator(); blockchainIterator.hashNext(); ) {
@@ -217,7 +217,7 @@ public class Blockchain {
                     continue;
                 }
                 for (TXInput txInput : transaction.getInputs()) {
-                    if (txInput.canUnlockOutputWith(address)) {
+                    if (txInput.usesKey(pubKeyHash)) {
                         String inTxId = Hex.encodeHexString(txInput.getTxId());
                         int[] spentOutIndexArray = spentTXOs.get(inTxId);
                         if (spentOutIndexArray == null) {
@@ -237,11 +237,11 @@ public class Blockchain {
     /**
      * 寻找能够花费的交易
      *
-     * @param address 钱包地址
-     * @param amount  花费金额
+     * @param pubKeyHash 钱包公钥Hash
+     * @param amount     花费金额
      */
-    public SpendableOutputResult findSpendableOutputs(String address, int amount) throws Exception {
-        Transaction[] unspentTXs = this.findUnspentTransactions(address);
+    public SpendableOutputResult findSpendableOutputs(byte[] pubKeyHash, int amount) throws Exception {
+        Transaction[] unspentTXs = this.findUnspentTransactions(pubKeyHash);
         int accumulated = 0;
         Map<String, int[]> unspentOuts = new HashMap<>();
         for (Transaction tx : unspentTXs) {
@@ -252,7 +252,7 @@ public class Blockchain {
 
                 TXOutput txOutput = tx.getOutputs()[outId];
 
-                if (txOutput.canBeUnlockedWith(address) && accumulated < amount) {
+                if (txOutput.isLockedWithKey(pubKeyHash) && accumulated < amount) {
                     accumulated += txOutput.getValue();
 
                     int[] outIds = unspentOuts.get(txId);

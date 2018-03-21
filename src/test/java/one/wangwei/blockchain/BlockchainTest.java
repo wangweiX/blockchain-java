@@ -12,7 +12,8 @@ public class BlockchainTest {
 
     public static void main(String[] args) {
         try {
-            String[] argss = {"send", "-from", "wangwei", "-to", "wangwei1", "-amount", "2"};
+//            String[] argss = {"send", "-from", "wangwei", "-to", "wangwei1", "-amount", "2"};
+            String[] argss = {"printaddresses"};
             CLI cli = new CLI(argss);
             cli.parse();
         } catch (Exception e) {

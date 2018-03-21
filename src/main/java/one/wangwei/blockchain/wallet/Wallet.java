@@ -11,6 +11,7 @@ import org.bouncycastle.jce.spec.ECParameterSpec;
 import org.bouncycastle.util.Arrays;
 
 import java.io.ByteArrayOutputStream;
+import java.io.Serializable;
 import java.security.*;
 
 /**
@@ -21,13 +22,12 @@ import java.security.*;
  */
 @Data
 @AllArgsConstructor
-public class Wallet {
+public class Wallet implements Serializable {
 
     /**
      * 校验码长度
      */
     private static final int ADDRESS_CHECKSUM_LEN = 4;
-
     /**
      * 私钥
      */
@@ -65,12 +65,14 @@ public class Wallet {
         // 注册 BC Provider
         Security.addProvider(new BouncyCastleProvider());
         // 创建椭圆曲线算法的密钥对生成器，算法为 ECDSA
-        KeyPairGenerator g = KeyPairGenerator.getInstance("ECDSA", "BC");
+        KeyPairGenerator g = KeyPairGenerator.getInstance("ECDSA", BouncyCastleProvider.PROVIDER_NAME);
         // 椭圆曲线（EC）域参数设定
-        ECParameterSpec ecSpec = ECNamedCurveTable.getParameterSpec("B-571");
+        // bitcoin 为什么会选择 secp256k1，详见：https://bitcointalk.org/index.php?topic=151120.0
+        ECParameterSpec ecSpec = ECNamedCurveTable.getParameterSpec("secp256k1");
         g.initialize(ecSpec, new SecureRandom());
         return g.generateKeyPair();
     }
+
 
     /**
      * 获取钱包地址

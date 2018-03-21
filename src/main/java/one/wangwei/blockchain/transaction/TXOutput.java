@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import one.wangwei.blockchain.crypto.Base58Check;
 
+import java.util.Arrays;
+
 /**
  * 交易输出
  *
@@ -21,14 +23,22 @@ public class TXOutput {
      */
     private int value;
     /**
-     * 锁定脚本
-     */
-    private String scriptPubKey;
-    /**
      * 公钥Hash
      */
-    private byte[] pubHashKey;
+    private byte[] pubKeyHash;
 
+    /**
+     * 创建交易输出
+     *
+     * @param value
+     * @param address
+     * @return
+     */
+    public static TXOutput newTXOutput(int value, String address) {
+        TXOutput txOutput = new TXOutput(value, null);
+        txOutput.lock(address);
+        return txOutput;
+    }
 
     /**
      * 使用钱包地址锁住交易输出
@@ -36,18 +46,20 @@ public class TXOutput {
      * @param address
      */
     public void lock(String address) {
-        Base58Check.base58ToBytes(address);
-
-
+        // 反向转化为 byte 数组
+        byte[] versionedPayload = Base58Check.base58ToBytes(address);
+        // 去除版本号
+        this.pubKeyHash = Arrays.copyOfRange(versionedPayload, 1, versionedPayload.length);
     }
 
     /**
-     * 判断解锁数据是否能够解锁交易输出
+     * 检查交易输出是否能够指定的公钥使用
      *
-     * @param unlockingData
+     * @param pubKeyHash
      * @return
      */
-    public boolean canBeUnlockedWith(String unlockingData) {
-        return this.getScriptPubKey().endsWith(unlockingData);
+    public boolean isLockedWithKey(byte[] pubKeyHash) {
+        return Arrays.equals(this.getPubKeyHash(), pubKeyHash);
     }
+
 }

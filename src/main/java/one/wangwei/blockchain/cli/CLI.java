@@ -2,13 +2,19 @@ package one.wangwei.blockchain.cli;
 
 import one.wangwei.blockchain.block.Block;
 import one.wangwei.blockchain.block.Blockchain;
+import one.wangwei.blockchain.crypto.Base58Check;
 import one.wangwei.blockchain.pow.ProofOfWork;
 import one.wangwei.blockchain.transaction.TXOutput;
 import one.wangwei.blockchain.transaction.Transaction;
 import one.wangwei.blockchain.util.RocksDBUtils;
+import one.wangwei.blockchain.wallet.Wallet;
+import one.wangwei.blockchain.wallet.WalletUtils;
 import org.apache.commons.cli.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+
+import java.util.Arrays;
+import java.util.Set;
 
 /**
  * 程序命令行工具入口
@@ -72,6 +78,12 @@ public class CLI {
                     }
                     this.send(sendFrom, sendTo, Integer.valueOf(sendAmount));
                     break;
+                case "createwallet":
+                    this.createWallet();
+                    break;
+                case "printaddresses":
+                    this.printAddresses();
+                    break;
                 case "printchain":
                     this.printChain();
                     break;
@@ -110,13 +122,44 @@ public class CLI {
     }
 
     /**
+     * 创建钱包
+     *
+     * @throws Exception
+     */
+    private void createWallet() throws Exception {
+        Wallet wallet = WalletUtils.getInstance().createWallet();
+        System.out.println("wallet address : " + wallet.getAddress());
+    }
+
+    /**
+     * 打印钱包地址
+     *
+     * @throws Exception
+     */
+    private void printAddresses() throws Exception {
+        Set<String> addresses = WalletUtils.getInstance().getAddresses();
+        if (addresses == null || addresses.isEmpty()) {
+            System.out.println("There isn't address");
+            return;
+        }
+        for (String address : addresses) {
+            System.out.println("Wallet address: " + address);
+        }
+    }
+
+    /**
      * 查询钱包余额
      *
      * @param address 钱包地址
      */
     private void getBalance(String address) throws Exception {
         Blockchain blockchain = Blockchain.createBlockchain(address);
-        TXOutput[] txOutputs = blockchain.findUTXO(address);
+
+        // 得到公钥Hash值
+        byte[] versionedPayload = Base58Check.base58ToBytes(address);
+        byte[] pubKeyHash = Arrays.copyOfRange(versionedPayload, 1, versionedPayload.length);
+
+        TXOutput[] txOutputs = blockchain.findUTXO(pubKeyHash);
         int balance = 0;
         if (txOutputs != null && txOutputs.length > 0) {
             for (TXOutput txOutput : txOutputs) {

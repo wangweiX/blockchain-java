@@ -27,17 +27,13 @@ public class TXInput {
      */
     private int txOutputIndex;
     /**
-     * 解锁脚本
+     * 签名
      */
-    private String scriptSig;
+    private byte[] signature;
     /**
      * 公钥
      */
     private byte[] pubKey;
-    /**
-     * 签名
-     */
-    private byte[] signature;
 
 
     /**
@@ -49,16 +45,6 @@ public class TXInput {
     public boolean usesKey(byte[] pubKeyHash) {
         byte[] lockingHash = DigestUtils.sha256(this.getPubKey());
         return Arrays.equals(lockingHash, pubKeyHash);
-    }
-
-    /**
-     * 判断解锁数据是否能够解锁交易输出
-     *
-     * @param unlockingData
-     * @return
-     */
-    public boolean canUnlockOutputWith(String unlockingData) {
-        return this.getScriptSig().endsWith(unlockingData);
     }
 
 }
