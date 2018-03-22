@@ -13,6 +13,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -127,6 +128,30 @@ public class Transaction {
 
         Transaction newTx = new Transaction(null, txInputs, txOutput);
         newTx.setTxId();
+
+        // 进行交易签名
+        blockchain.signTransaction(newTx, senderWallet.getPrivateKey());
+
         return newTx;
     }
+
+
+    /**
+     * 剪切拷贝交易信息
+     *
+     * @return
+     */
+    public Transaction trimmedCopy() {
+        TXInput[] tmpTXInputs = new TXInput[this.getInputs().length];
+        for (int i = 0; i < this.getInputs().length; i++) {
+            TXInput txInput = this.getInputs()[i];
+            tmpTXInputs[i] = new TXInput(txInput.getTxId(), txInput.getTxOutputIndex(), null, null);
+        }
+
+        TXOutput[] tmpTXOutputs = Arrays.copyOf(this.getOutputs(), this.getOutputs().length);
+
+        return new Transaction(this.getTxId(), tmpTXInputs, tmpTXOutputs);
+    }
+
+
 }

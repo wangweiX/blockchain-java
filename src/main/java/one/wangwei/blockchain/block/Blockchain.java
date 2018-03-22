@@ -12,6 +12,7 @@ import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.security.PrivateKey;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -270,6 +271,19 @@ public class Blockchain {
             }
         }
         return new SpendableOutputResult(accumulated, unspentOuts);
+    }
+
+
+    /**
+     * 进行交易签名
+     *
+     * @param tx         交易数据
+     * @param privateKey 私钥
+     */
+    public void signTransaction(Transaction tx, PrivateKey privateKey) {
+
+        // TODO
+
     }
 
 }
