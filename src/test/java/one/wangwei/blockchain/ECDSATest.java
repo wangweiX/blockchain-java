@@ -1,12 +1,6 @@
 package one.wangwei.blockchain;
 
 import one.wangwei.blockchain.wallet.Wallet;
-import org.bouncycastle.jce.ECNamedCurveTable;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.jce.spec.ECParameterSpec;
-
-import java.io.ByteArrayOutputStream;
-import java.security.*;
 
 public class ECDSATest {
 

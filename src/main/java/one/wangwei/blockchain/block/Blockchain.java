@@ -13,6 +13,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.security.PrivateKey;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -275,15 +276,38 @@ public class Blockchain {
 
 
     /**
+     * 依据交易ID查询交易信息
+     *
+     * @param txId 交易ID
+     * @return
+     */
+    private Transaction findTransaction(byte[] txId) throws Exception {
+        for (BlockchainIterator iterator = this.getBlockchainIterator(); iterator.hashNext(); ) {
+            Block block = iterator.next();
+            for (Transaction tx : block.getTransactions()) {
+                if (Arrays.equals(tx.getTxId(), txId)) {
+                    return tx;
+                }
+            }
+        }
+        throw new Exception("ERROR: Can not found tx by txId ! ");
+    }
+
+
+    /**
      * 进行交易签名
      *
      * @param tx         交易数据
      * @param privateKey 私钥
      */
-    public void signTransaction(Transaction tx, PrivateKey privateKey) {
-
-        // TODO
-
+    public void signTransaction(Transaction tx, PrivateKey privateKey) throws Exception {
+        // 先来找到这笔新的交易中，交易输入所引用的前面的多笔交易的数据
+        Map<String, Transaction> prevTxMap = new HashMap<>();
+        for (TXInput txInput : tx.getInputs()) {
+            Transaction prevTx = this.findTransaction(txInput.getTxId());
+            prevTxMap.put(Hex.encodeHexString(txInput.getTxId()), prevTx);
+        }
+        tx.sign(privateKey, prevTxMap);
     }
 
 }

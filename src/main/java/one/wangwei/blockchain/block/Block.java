@@ -78,12 +78,9 @@ public class Block {
      * @return
      */
     public byte[] hashTransaction() {
-
-        // TODO 需要优化
-
         byte[][] txIdArrays = new byte[this.getTransactions().length][];
         for (int i = 0; i < this.getTransactions().length; i++) {
-            txIdArrays[i] = this.getTransactions()[i].getTxId();
+            txIdArrays[i] = this.getTransactions()[i].hash();
         }
         return DigestUtils.sha256(ByteUtils.merge(txIdArrays));
     }

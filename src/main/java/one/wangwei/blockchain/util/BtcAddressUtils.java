@@ -13,9 +13,9 @@ import org.bouncycastle.util.Arrays;
 public class BtcAddressUtils {
 
     /**
-     * 计算 RIPEMD160 Hash值
+     * 计算公钥的 RIPEMD160 Hash值
      *
-     * @param pubKey
+     * @param pubKey 公钥
      * @return ipeMD160Hash(sha256 ( pubkey))
      */
     public static byte[] ripeMD160Hash(byte[] pubKey) {
