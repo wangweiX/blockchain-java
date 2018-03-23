@@ -188,7 +188,6 @@ public class Transaction {
         Transaction txCopy = this.trimmedCopy();
 
         for (TXInput txInput : txCopy.getInputs()) {
-
             // 获取交易输入TxID对应的交易数据
             Transaction prevTx = prevTxMap.get(Hex.encodeHexString(txInput.getTxId()));
             // 获取交易输入所对应的上一笔交易中的交易输出
@@ -212,4 +211,42 @@ public class Transaction {
     }
 
 
+    /**
+     * 验证交易信息
+     *
+     * @param prevTxMap 前面多笔交易集合
+     * @return
+     */
+    public boolean verify(Map<String, Transaction> prevTxMap) throws Exception {
+        // coinbase 交易信息不需要签名，也就无需验证
+        if (this.isCoinbase()) {
+            return true;
+        }
+        // 再次验证一下交易信息中的交易输入是否正确，也就是能否查找对应的交易数据
+        for (TXInput txInput : this.getInputs()) {
+            if (prevTxMap.get(Hex.encodeHexString(txInput.getTxId())) == null) {
+                throw new Exception("ERROR: Previous transaction is not correct");
+            }
+        }
+
+        // 创建用于签名验证的交易信息的副本
+        Transaction txCopy = this.trimmedCopy();
+        for (TXInput txInput : txCopy.getInputs()) {
+            // 获取交易输入TxID对应的交易数据
+            Transaction prevTx = prevTxMap.get(Hex.encodeHexString(txInput.getTxId()));
+            // 获取交易输入所对应的上一笔交易中的交易输出
+            TXOutput prevTxOutput = prevTx.getOutputs()[txInput.getTxOutputIndex()];
+            txInput.setPubKey(prevTxOutput.getPubKeyHash());
+            // 得到要签名的数据，即交易ID
+            txCopy.setTxId(txCopy.hash());
+            txInput.setPubKey(null);
+
+            Security.addProvider(new BouncyCastleProvider());
+            Signature ecdsaVerify = Signature.getInstance("SHA256withECDSA", BouncyCastleProvider.PROVIDER_NAME);
+//            ecdsaVerify.initVerify(prevTxOutput.getPubKeyHash()); // TODO
+            ecdsaVerify.update(txCopy.getTxId());
+            return ecdsaVerify.verify(txInput.getSignature());
+        }
+        return true;
+    }
 }
