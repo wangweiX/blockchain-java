@@ -11,8 +11,8 @@ import one.wangwei.blockchain.util.RocksDBUtils;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
 
-import java.security.PrivateKey;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -71,10 +71,17 @@ public class Blockchain {
      * @param transactions
      */
     public void mineBlock(Transaction[] transactions) throws Exception {
+        // 挖矿前，先验证交易记录
+        for (Transaction tx : transactions) {
+            if (!this.verifyTransactions(tx)) {
+                throw new Exception("ERROR: Fail to mine block ! Invalid transaction ! ");
+            }
+        }
         String lastBlockHash = RocksDBUtils.getInstance().getLastBlockHash();
         if (lastBlockHash == null) {
             throw new Exception("ERROR: Fail to get last block hash ! ");
         }
+
         Block block = Block.newBlock(lastBlockHash, transactions);
         this.addBlock(block);
     }
@@ -300,7 +307,7 @@ public class Blockchain {
      * @param tx         交易数据
      * @param privateKey 私钥
      */
-    public void signTransaction(Transaction tx, PrivateKey privateKey) throws Exception {
+    public void signTransaction(Transaction tx, BCECPrivateKey privateKey) throws Exception {
         // 先来找到这笔新的交易中，交易输入所引用的前面的多笔交易的数据
         Map<String, Transaction> prevTxMap = new HashMap<>();
         for (TXInput txInput : tx.getInputs()) {
@@ -310,4 +317,21 @@ public class Blockchain {
         tx.sign(privateKey, prevTxMap);
     }
 
+    /**
+     * 交易签名验证
+     *
+     * @param tx
+     */
+    private boolean verifyTransactions(Transaction tx) throws Exception {
+        Map<String, Transaction> prevTx = new HashMap<>();
+        for (TXInput txInput : tx.getInputs()) {
+            Transaction transaction = this.findTransaction(txInput.getTxId());
+            prevTx.put(Hex.encodeHexString(txInput.getTxId()), transaction);
+        }
+        try {
+            return tx.verify(prevTx);
+        } catch (Exception e) {
+            throw new Exception("Fail to verify transaction ! transaction invalid ! ");
+        }
+    }
 }

@@ -13,9 +13,12 @@ public class BlockchainTest {
     public static void main(String[] args) {
         try {
 //            String[] argss = {"createwallet"};
-//             String[] argss = {"printaddresses"};
-             String[] argss = {"getbalance", "-address", "1A2SURFiuJjGDb2BSCAkae4zR4Aw1Ac5t7"};
-//            String[] argss = {"send", "-from", "13fheAYPZ1VHAjGM6ZXT9siywGmD4UUf8e", "-to", "1A2SURFiuJjGDb2BSCAkae4zR4Aw1Ac5t7", "-amount", "2"};
+            // 1Ac2d6pe7EvbUzmDuTvQqF4vWKkgVoN75m
+            // 1LZfi7LKXiTrm5hUwJYWSjj1Rn4mKvm4zY
+            // 1ErBCVGzEXKminTvxCbZXZhgX7dLKekAFc
+//            String[] argss = {"printaddresses"};
+//            String[] argss = {"getbalance", "-address", "1ErBCVGzEXKminTvxCbZXZhgX7dLKekAFc"};
+            String[] argss = {"send", "-from", "1Ac2d6pe7EvbUzmDuTvQqF4vWKkgVoN75m", "-to", "1ErBCVGzEXKminTvxCbZXZhgX7dLKekAFc", "-amount", "1"};
             CLI cli = new CLI(argss);
             cli.parse();
         } catch (Exception e) {

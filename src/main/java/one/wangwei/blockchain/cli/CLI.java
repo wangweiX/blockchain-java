@@ -2,10 +2,10 @@ package one.wangwei.blockchain.cli;
 
 import one.wangwei.blockchain.block.Block;
 import one.wangwei.blockchain.block.Blockchain;
-import one.wangwei.blockchain.util.Base58Check;
 import one.wangwei.blockchain.pow.ProofOfWork;
 import one.wangwei.blockchain.transaction.TXOutput;
 import one.wangwei.blockchain.transaction.Transaction;
+import one.wangwei.blockchain.util.Base58Check;
 import one.wangwei.blockchain.util.RocksDBUtils;
 import one.wangwei.blockchain.wallet.Wallet;
 import one.wangwei.blockchain.wallet.WalletUtils;
@@ -153,8 +153,13 @@ public class CLI {
      * @param address 钱包地址
      */
     private void getBalance(String address) throws Exception {
+        // 检查钱包地址是否合法
+        try {
+            Base58Check.base58ToBytes(address);
+        } catch (Exception e) {
+            throw new Exception("ERROR: invalid wallet address");
+        }
         Blockchain blockchain = Blockchain.createBlockchain(address);
-
         // 得到公钥Hash值
         byte[] versionedPayload = Base58Check.base58ToBytes(address);
         byte[] pubKeyHash = Arrays.copyOfRange(versionedPayload, 1, versionedPayload.length);
@@ -177,6 +182,21 @@ public class CLI {
      * @param amount
      */
     private void send(String from, String to, int amount) throws Exception {
+        // 检查钱包地址是否合法
+        try {
+            Base58Check.base58ToBytes(from);
+        } catch (Exception e) {
+            throw new Exception("ERROR: sender address invalid ! address=" + from);
+        }
+        // 检查钱包地址是否合法
+        try {
+            Base58Check.base58ToBytes(to);
+        } catch (Exception e) {
+            throw new Exception("ERROR: receiver address invalid ! address=" + to);
+        }
+        if (amount < 1) {
+            throw new Exception("ERROR: amount invalid ! ");
+        }
         Blockchain blockchain = Blockchain.createBlockchain(from);
         Transaction transaction = Transaction.newUTXOTransaction(from, to, amount, blockchain);
         blockchain.mineBlock(new Transaction[]{transaction});

@@ -1,8 +1,8 @@
 package one.wangwei.blockchain.wallet;
 
+import one.wangwei.blockchain.util.Base58Check;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -82,8 +82,11 @@ public class WalletUtils {
      * @return
      */
     public Wallet getWallet(String address) throws Exception {
-        if (StringUtils.isBlank(address)) {
-            throw new Exception("ERROR: Fail to get wallet ! address invalid ! ");
+        // 检查钱包地址是否合法
+        try {
+            Base58Check.base58ToBytes(address);
+        } catch (Exception e) {
+            throw new Exception("ERROR: invalid wallet address");
         }
         Wallet wallet = walletMap.get(address);
         if (wallet == null) {

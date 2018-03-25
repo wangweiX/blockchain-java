@@ -4,13 +4,18 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import one.wangwei.blockchain.util.Base58Check;
 import one.wangwei.blockchain.util.BtcAddressUtils;
+import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
+import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey;
 import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.jce.spec.ECParameterSpec;
 
 import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
-import java.security.*;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.SecureRandom;
+import java.security.Security;
 
 /**
  * 钱包
@@ -29,11 +34,11 @@ public class Wallet implements Serializable {
     /**
      * 私钥
      */
-    private PrivateKey privateKey;
+    private BCECPrivateKey privateKey;
     /**
      * 公钥
      */
-    private PublicKey publicKey;
+    private byte[] publicKey;
 
 
     public Wallet() {
@@ -45,13 +50,19 @@ public class Wallet implements Serializable {
      */
     private void initWallet() {
         try {
-            KeyPair keyPair = newKeyPair();
-            this.privateKey = keyPair.getPrivate();
-            this.publicKey = keyPair.getPublic();
+            KeyPair keyPair = newECKeyPair();
+            BCECPrivateKey privateKey = (BCECPrivateKey) keyPair.getPrivate();
+            BCECPublicKey publicKey = (BCECPublicKey) keyPair.getPublic();
+
+            byte[] publicKeyBytes = publicKey.getQ().getEncoded(false);
+
+            this.setPrivateKey(privateKey);
+            this.setPublicKey(publicKeyBytes);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
 
     /**
      * 创建新的密钥对
@@ -59,16 +70,16 @@ public class Wallet implements Serializable {
      * @return
      * @throws Exception
      */
-    private KeyPair newKeyPair() throws Exception {
+    private KeyPair newECKeyPair() throws Exception {
         // 注册 BC Provider
         Security.addProvider(new BouncyCastleProvider());
         // 创建椭圆曲线算法的密钥对生成器，算法为 ECDSA
-        KeyPairGenerator g = KeyPairGenerator.getInstance("ECDSA", BouncyCastleProvider.PROVIDER_NAME);
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("ECDSA", BouncyCastleProvider.PROVIDER_NAME);
         // 椭圆曲线（EC）域参数设定
         // bitcoin 为什么会选择 secp256k1，详见：https://bitcointalk.org/index.php?topic=151120.0
         ECParameterSpec ecSpec = ECNamedCurveTable.getParameterSpec("secp256k1");
-        g.initialize(ecSpec, new SecureRandom());
-        return g.generateKeyPair();
+        keyPairGenerator.initialize(ecSpec, new SecureRandom());
+        return keyPairGenerator.generateKeyPair();
     }
 
 
@@ -79,7 +90,7 @@ public class Wallet implements Serializable {
      */
     public String getAddress() throws Exception {
         // 1. 获取 ripemdHashedKey
-        byte[] ripemdHashedKey = BtcAddressUtils.ripeMD160Hash(this.getPublicKey().getEncoded());
+        byte[] ripemdHashedKey = BtcAddressUtils.ripeMD160Hash(this.getPublicKey());
 
         // 2. 添加版本 0x00
         ByteArrayOutputStream addrStream = new ByteArrayOutputStream();
