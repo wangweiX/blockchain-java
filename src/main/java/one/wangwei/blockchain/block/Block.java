@@ -80,7 +80,7 @@ public class Block {
     public byte[] hashTransaction() {
         byte[][] txIdArrays = new byte[this.getTransactions().length][];
         for (int i = 0; i < this.getTransactions().length; i++) {
-            txIdArrays[i] = this.getTransactions()[i].getTxId();
+            txIdArrays[i] = this.getTransactions()[i].hash();
         }
         return DigestUtils.sha256(ByteUtils.merge(txIdArrays));
     }

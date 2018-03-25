@@ -3,6 +3,9 @@ package one.wangwei.blockchain.transaction;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import one.wangwei.blockchain.util.BtcAddressUtils;
+
+import java.util.Arrays;
 
 /**
  * 交易输入
@@ -24,19 +27,24 @@ public class TXInput {
      */
     private int txOutputIndex;
     /**
-     * 解锁脚本
+     * 签名
      */
-    private String scriptSig;
+    private byte[] signature;
+    /**
+     * 公钥
+     */
+    private byte[] pubKey;
 
 
     /**
-     * 判断解锁数据是否能够解锁交易输出
+     * 检查公钥hash是否用于交易输入
      *
-     * @param unlockingData
+     * @param pubKeyHash
      * @return
      */
-    public boolean canUnlockOutputWith(String unlockingData) {
-        return this.getScriptSig().endsWith(unlockingData);
+    public boolean usesKey(byte[] pubKeyHash) {
+        byte[] lockingHash = BtcAddressUtils.ripeMD160Hash(this.getPubKey());
+        return Arrays.equals(lockingHash, pubKeyHash);
     }
 
 }
