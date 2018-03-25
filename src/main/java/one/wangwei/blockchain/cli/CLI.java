@@ -209,7 +209,7 @@ public class CLI {
      */
     private void help() {
         System.out.println("Usage:");
-        System.out.println("  createwallet - create wallet");
+        System.out.println("  createwallet - Generates a new key-pair and saves it into the wallet file");
         System.out.println("  printaddresses - print all wallet address");
         System.out.println("  getbalance -address ADDRESS - Get balance of ADDRESS");
         System.out.println("  createblockchain -address ADDRESS - Create a blockchain and send genesis block reward to ADDRESS");
