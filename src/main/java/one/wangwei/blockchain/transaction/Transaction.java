@@ -146,7 +146,7 @@ public class Transaction {
         newTx.setTxId(newTx.hash());
 
         // 进行交易签名
-//        blockchain.signTransaction(newTx, senderWallet.getPrivateKey());
+        blockchain.signTransaction(newTx, senderWallet.getPrivateKey());
 
         return newTx;
     }
