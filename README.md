@@ -1,8 +1,11 @@
 ## 基于Java语言构建区块链
 
 ### 环境
+
+- Maven 3.2.5
 - JDK 1.7 +
 - IDEA 安装插件 Lombok. [详情](https://wangwei.one/posts/917fb1e0.html)
+
 
 ### 文章
 
@@ -11,6 +14,7 @@
 - [持久化存储](https://wangwei.one/posts/35c768a3.html)
 - [交易-UTXO](https://wangwei.one/posts/9cf9e42a.html)
 - [地址-钱包](https://wangwei.one/posts/f9088e0f.html)
+
 
 ### 反馈
 - 非常欢迎大家回信与我交流区块链技术
