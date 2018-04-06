@@ -21,7 +21,7 @@ public class RocksDBUtils {
      * 区块桶前缀
      */
     private static final String BLOCKS_BUCKET_PREFIX = "blocks_";
-
+    
     private volatile static RocksDBUtils instance;
 
     public static RocksDBUtils getInstance() {
@@ -47,6 +47,8 @@ public class RocksDBUtils {
     private void initRocksDB() {
         try {
             rocksDB = RocksDB.open(new Options().setCreateIfMissing(true), DB_FILE);
+
+
         } catch (RocksDBException e) {
             e.printStackTrace();
         }

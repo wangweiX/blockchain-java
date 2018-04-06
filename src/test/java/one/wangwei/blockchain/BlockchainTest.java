@@ -1,7 +1,5 @@
 package one.wangwei.blockchain;
 
-import one.wangwei.blockchain.cli.CLI;
-
 /**
  * 测试
  *
@@ -18,9 +16,9 @@ public class BlockchainTest {
             // 1ErBCVGzEXKminTvxCbZXZhgX7dLKekAFc
 //            String[] argss = {"printaddresses"};
 //            String[] argss = {"getbalance", "-address", "1ErBCVGzEXKminTvxCbZXZhgX7dLKekAFc"};
-            String[] argss = {"send", "-from", "1Ac2d6pe7EvbUzmDuTvQqF4vWKkgVoN75m", "-to", "1ErBCVGzEXKminTvxCbZXZhgX7dLKekAFc", "-amount", "1"};
-            CLI cli = new CLI(argss);
-            cli.parse();
+//            String[] argss = {"send", "-from", "1Ac2d6pe7EvbUzmDuTvQqF4vWKkgVoN75m", "-to", "1ErBCVGzEXKminTvxCbZXZhgX7dLKekAFc", "-amount", "1"};
+//            CLI cli = new CLI(argss);
+//            cli.parse();
         } catch (Exception e) {
             e.printStackTrace();
         }

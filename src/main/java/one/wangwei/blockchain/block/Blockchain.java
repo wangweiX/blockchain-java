@@ -32,7 +32,7 @@ public class Blockchain {
 
 
     /**
-     * 从 DB 从恢复区块链数据
+     * 从 DB 中恢复区块链数据
      *
      * @return
      * @throws Exception
