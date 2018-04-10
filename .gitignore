@@ -2,3 +2,4 @@
 target/
 *.iml
 blockchain.db/
+wallet.dat

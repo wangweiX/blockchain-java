@@ -60,7 +60,6 @@
             <artifactId>rocksdbjni</artifactId>
             <version>5.9.2</version>
         </dependency>
-
     </dependencies>
 
     <build>

@@ -12,7 +12,7 @@ public class BlockchainTest {
 
     public static void main(String[] args) {
         try {
-            String argss[] = {"-addblock", "Send 1.0 BTC to wangwei"};
+            String argss[] = {"-addblock", "Send 2.0 BTC to wangwei"};
             CLI cli = new CLI(argss);
             cli.parse();
         } catch (Exception e) {
