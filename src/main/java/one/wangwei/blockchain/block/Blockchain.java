@@ -1,7 +1,7 @@
 package one.wangwei.blockchain.block;
 
 import lombok.Getter;
-import one.wangwei.blockchain.util.RocksDBUtils;
+import one.wangwei.blockchain.store.LevelDBUtils;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -24,13 +24,13 @@ public class Blockchain {
      *
      * @return
      */
-    public static Blockchain newBlockchain() throws Exception {
-        String lastBlockHash = RocksDBUtils.getInstance().getLastBlockHash();
+    public static Blockchain newBlockchain() {
+        String lastBlockHash = LevelDBUtils.getInstance().getLastBlockHash();
         if (StringUtils.isBlank(lastBlockHash)) {
             Block genesisBlock = Block.newGenesisBlock();
             lastBlockHash = genesisBlock.getHash();
-            RocksDBUtils.getInstance().putBlock(genesisBlock);
-            RocksDBUtils.getInstance().putLastBlockHash(lastBlockHash);
+            LevelDBUtils.getInstance().putBlock(genesisBlock);
+            LevelDBUtils.getInstance().putLastBlockHash(lastBlockHash);
         }
         return new Blockchain(lastBlockHash);
     }
@@ -41,7 +41,7 @@ public class Blockchain {
      * @param data
      */
     public void addBlock(String data) throws Exception {
-        String lastBlockHash = RocksDBUtils.getInstance().getLastBlockHash();
+        String lastBlockHash = LevelDBUtils.getInstance().getLastBlockHash();
         if (StringUtils.isBlank(lastBlockHash)) {
             throw new Exception("Fail to add block into blockchain ! ");
         }
@@ -53,9 +53,9 @@ public class Blockchain {
      *
      * @param block
      */
-    public void addBlock(Block block) throws Exception {
-        RocksDBUtils.getInstance().putLastBlockHash(block.getHash());
-        RocksDBUtils.getInstance().putBlock(block);
+    public void addBlock(Block block) {
+        LevelDBUtils.getInstance().putLastBlockHash(block.getHash());
+        LevelDBUtils.getInstance().putBlock(block);
         this.lastBlockHash = block.getHash();
     }
 
@@ -76,11 +76,11 @@ public class Blockchain {
          *
          * @return
          */
-        public boolean hashNext() throws Exception {
+        public boolean hashNext() {
             if (StringUtils.isBlank(currentBlockHash)) {
                 return false;
             }
-            Block lastBlock = RocksDBUtils.getInstance().getBlock(currentBlockHash);
+            Block lastBlock = LevelDBUtils.getInstance().getBlock(currentBlockHash);
             if (lastBlock == null) {
                 return false;
             }
@@ -88,17 +88,17 @@ public class Blockchain {
             if (lastBlock.getPrevBlockHash().length() == 0) {
                 return true;
             }
-            return RocksDBUtils.getInstance().getBlock(lastBlock.getPrevBlockHash()) != null;
+            return LevelDBUtils.getInstance().getBlock(lastBlock.getPrevBlockHash()) != null;
         }
 
-        
+
         /**
          * 返回区块
          *
          * @return
          */
-        public Block next() throws Exception {
-            Block currentBlock = RocksDBUtils.getInstance().getBlock(currentBlockHash);
+        public Block next() {
+            Block currentBlock = LevelDBUtils.getInstance().getBlock(currentBlockHash);
             if (currentBlock != null) {
                 this.currentBlockHash = currentBlock.getPrevBlockHash();
                 return currentBlock;

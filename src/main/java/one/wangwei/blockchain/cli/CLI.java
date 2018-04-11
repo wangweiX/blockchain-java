@@ -3,7 +3,7 @@ package one.wangwei.blockchain.cli;
 import one.wangwei.blockchain.block.Block;
 import one.wangwei.blockchain.block.Blockchain;
 import one.wangwei.blockchain.pow.ProofOfWork;
-import one.wangwei.blockchain.util.RocksDBUtils;
+import one.wangwei.blockchain.store.LevelDBUtils;
 import org.apache.commons.cli.*;
 
 /**
@@ -46,7 +46,7 @@ public class CLI {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            RocksDBUtils.getInstance().closeDB();
+            LevelDBUtils.getInstance().closeDB();
         }
     }
 
@@ -84,7 +84,7 @@ public class CLI {
     /**
      * 打印出区块链中的所有区块
      */
-    private void printChain() throws Exception {
+    private void printChain() {
         Blockchain blockchain = Blockchain.newBlockchain();
         for (Blockchain.BlockchainIterator iterator = blockchain.getBlockchainIterator(); iterator.hashNext(); ) {
             Block block = iterator.next();
