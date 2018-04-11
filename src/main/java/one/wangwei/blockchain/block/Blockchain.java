@@ -3,11 +3,11 @@ package one.wangwei.blockchain.block;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import one.wangwei.blockchain.store.RocksDBUtils;
 import one.wangwei.blockchain.transaction.SpendableOutputResult;
 import one.wangwei.blockchain.transaction.TXInput;
 import one.wangwei.blockchain.transaction.TXOutput;
 import one.wangwei.blockchain.transaction.Transaction;
-import one.wangwei.blockchain.util.RocksDBUtils;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -49,7 +49,7 @@ public class Blockchain {
      * @param address 钱包地址
      * @return
      */
-    public static Blockchain createBlockchain(String address) throws Exception {
+    public static Blockchain createBlockchain(String address) {
         String lastBlockHash = RocksDBUtils.getInstance().getLastBlockHash();
         if (StringUtils.isBlank(lastBlockHash)) {
             // 创建 coinBase 交易
@@ -81,7 +81,7 @@ public class Blockchain {
      *
      * @param block
      */
-    private void addBlock(Block block) throws Exception {
+    private void addBlock(Block block) {
         RocksDBUtils.getInstance().putLastBlockHash(block.getHash());
         RocksDBUtils.getInstance().putBlock(block);
         this.lastBlockHash = block.getHash();
@@ -104,7 +104,7 @@ public class Blockchain {
          *
          * @return
          */
-        public boolean hashNext() throws Exception {
+        public boolean hashNext() {
             if (StringUtils.isBlank(currentBlockHash)) {
                 return false;
             }
@@ -125,7 +125,7 @@ public class Blockchain {
          *
          * @return
          */
-        public Block next() throws Exception {
+        public Block next() {
             Block currentBlock = RocksDBUtils.getInstance().getBlock(currentBlockHash);
             if (currentBlock != null) {
                 this.currentBlockHash = currentBlock.getPrevBlockHash();
@@ -205,7 +205,7 @@ public class Blockchain {
      * @return 交易ID以及对应的交易输出下标地址
      * @throws Exception
      */
-    private Map<String, int[]> getAllSpentTXOs(String address) throws Exception {
+    private Map<String, int[]> getAllSpentTXOs(String address) {
         // 定义TxId ——> spentOutIndex[]，存储交易ID与已被花费的交易输出数组索引值
         Map<String, int[]> spentTXOs = new HashMap<>();
         for (BlockchainIterator blockchainIterator = this.getBlockchainIterator(); blockchainIterator.hashNext(); ) {
