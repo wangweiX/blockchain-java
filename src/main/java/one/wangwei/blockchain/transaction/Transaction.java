@@ -116,7 +116,7 @@ public class Transaction {
         byte[] pubKey = senderWallet.getPublicKey();
         byte[] pubKeyHash = BtcAddressUtils.ripeMD160Hash(pubKey);
 
-        SpendableOutputResult result = blockchain.findSpendableOutputs(pubKeyHash, amount);
+        SpendableOutputResult result = new UTXOSet(blockchain).findSpendableOutputs(pubKeyHash, amount);
         int accumulated = result.getAccumulated();
         Map<String, int[]> unspentOuts = result.getUnspentOuts();
 

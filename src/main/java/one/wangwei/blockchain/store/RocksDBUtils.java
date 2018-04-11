@@ -1,7 +1,9 @@
 package one.wangwei.blockchain.store;
 
 import com.google.common.collect.Maps;
+import lombok.Getter;
 import one.wangwei.blockchain.block.Block;
+import one.wangwei.blockchain.transaction.TXOutput;
 import one.wangwei.blockchain.util.SerializeUtils;
 import org.rocksdb.RocksDB;
 import org.rocksdb.RocksDBException;
@@ -21,9 +23,14 @@ public class RocksDBUtils {
      */
     private static final String DB_FILE = "blockchain.db";
     /**
-     * 区块桶前缀
+     * 区块桶Key
      */
     private static final String BLOCKS_BUCKET_KEY = "blocks";
+    /**
+     * 链状态桶Key
+     */
+    private static final String CHAINSTATE_BUCKET_KEY = "chainstate";
+
     /**
      * 最新一个区块
      */
@@ -48,10 +55,16 @@ public class RocksDBUtils {
      * block buckets
      */
     private Map<String, byte[]> blocksBucket;
+    /**
+     * chainstate buckets
+     */
+    @Getter
+    private Map<String, byte[]> chainstateBucket;
 
     private RocksDBUtils() {
         openDB();
         initBlockBucket();
+        initChainStateBucket();
     }
 
     /**
@@ -84,6 +97,24 @@ public class RocksDBUtils {
     }
 
     /**
+     * 初始化 blocks 数据桶
+     */
+    private void initChainStateBucket() {
+        try {
+            byte[] chainstateBucketKey = SerializeUtils.serialize(CHAINSTATE_BUCKET_KEY);
+            byte[] chainstateBucketBytes = db.get(chainstateBucketKey);
+            if (chainstateBucketBytes != null) {
+                chainstateBucket = (Map) SerializeUtils.deserialize(chainstateBucketBytes);
+            } else {
+                chainstateBucket = Maps.newHashMap();
+                db.put(chainstateBucketKey, SerializeUtils.serialize(chainstateBucket));
+            }
+        } catch (RocksDBException e) {
+            throw new RuntimeException("Fail to init chainstate bucket ! ", e);
+        }
+    }
+
+    /**
      * 保存最新一个区块的Hash值
      *
      * @param tipBlockHash
@@ -93,7 +124,7 @@ public class RocksDBUtils {
             blocksBucket.put(LAST_BLOCK_KEY, SerializeUtils.serialize(tipBlockHash));
             db.put(SerializeUtils.serialize(BLOCKS_BUCKET_KEY), SerializeUtils.serialize(blocksBucket));
         } catch (RocksDBException e) {
-            throw new RuntimeException("Fail to put last block hash ! ", e);
+            throw new RuntimeException("Fail to put last block hash ! tipBlockHash=" + tipBlockHash, e);
         }
     }
 
@@ -120,7 +151,7 @@ public class RocksDBUtils {
             blocksBucket.put(block.getHash(), SerializeUtils.serialize(block));
             db.put(SerializeUtils.serialize(BLOCKS_BUCKET_KEY), SerializeUtils.serialize(blocksBucket));
         } catch (RocksDBException e) {
-            throw new RuntimeException("Fail to put block ! ", e);
+            throw new RuntimeException("Fail to put block ! block=" + block.toString(), e);
         }
     }
 
@@ -131,8 +162,54 @@ public class RocksDBUtils {
      * @return
      */
     public Block getBlock(String blockHash) {
-        return (Block) SerializeUtils.deserialize(blocksBucket.get(blockHash));
+        byte[] blockBytes = blocksBucket.get(blockHash);
+        if (blockBytes != null) {
+            return (Block) SerializeUtils.deserialize(blockBytes);
+        }
+        throw new RuntimeException("Fail to get block ! blockHash=" + blockHash);
     }
+
+
+    /**
+     * 清空chainstate bucket
+     */
+    public void cleanChainStateBucket() {
+        try {
+            chainstateBucket.clear();
+        } catch (Exception e) {
+            throw new RuntimeException("Fail to clear chainstate bucket ! ", e);
+        }
+    }
+
+    /**
+     * 保存UTXO数据
+     *
+     * @param key   交易ID
+     * @param utxos UTXOs
+     */
+    public void putUTXOs(String key, TXOutput[] utxos) {
+        try {
+            chainstateBucket.put(key, SerializeUtils.serialize(utxos));
+            db.put(SerializeUtils.serialize(CHAINSTATE_BUCKET_KEY), SerializeUtils.serialize(chainstateBucket));
+        } catch (Exception e) {
+            throw new RuntimeException("Fail to put UTXOs into chainstate bucket ! key=" + key, e);
+        }
+    }
+
+
+    /**
+     * 查询UTXO数据
+     *
+     * @param key 交易ID
+     */
+    public TXOutput[] getUTXOs(String key) {
+        byte[] utxosByte = chainstateBucket.get(key);
+        if (utxosByte != null) {
+            return (TXOutput[]) SerializeUtils.deserialize(utxosByte);
+        }
+        return null;
+    }
+
 
     /**
      * 关闭数据库

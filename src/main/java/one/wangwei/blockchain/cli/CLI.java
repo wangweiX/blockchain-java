@@ -6,6 +6,7 @@ import one.wangwei.blockchain.pow.ProofOfWork;
 import one.wangwei.blockchain.store.RocksDBUtils;
 import one.wangwei.blockchain.transaction.TXOutput;
 import one.wangwei.blockchain.transaction.Transaction;
+import one.wangwei.blockchain.transaction.UTXOSet;
 import one.wangwei.blockchain.util.Base58Check;
 import one.wangwei.blockchain.wallet.Wallet;
 import one.wangwei.blockchain.wallet.WalletUtils;
@@ -116,8 +117,10 @@ public class CLI {
      *
      * @param address
      */
-    private void createBlockchain(String address) throws Exception {
-        Blockchain.createBlockchain(address);
+    private void createBlockchain(String address) {
+        Blockchain blockchain = Blockchain.createBlockchain(address);
+        UTXOSet utxoSet = new UTXOSet(blockchain);
+        utxoSet.reIndex();
         System.out.println("Done ! ");
     }
 
@@ -136,7 +139,7 @@ public class CLI {
      *
      * @throws Exception
      */
-    private void printAddresses() throws Exception {
+    private void printAddresses() {
         Set<String> addresses = WalletUtils.getInstance().getAddresses();
         if (addresses == null || addresses.isEmpty()) {
             System.out.println("There isn't address");
@@ -159,12 +162,15 @@ public class CLI {
         } catch (Exception e) {
             throw new Exception("ERROR: invalid wallet address");
         }
-        Blockchain blockchain = Blockchain.createBlockchain(address);
+
         // 得到公钥Hash值
         byte[] versionedPayload = Base58Check.base58ToBytes(address);
         byte[] pubKeyHash = Arrays.copyOfRange(versionedPayload, 1, versionedPayload.length);
 
-        TXOutput[] txOutputs = blockchain.findUTXO(pubKeyHash);
+        Blockchain blockchain = Blockchain.createBlockchain(address);
+        UTXOSet utxoSet = new UTXOSet(blockchain);
+
+        TXOutput[] txOutputs = utxoSet.findUTXOs(pubKeyHash);
         int balance = 0;
         if (txOutputs != null && txOutputs.length > 0) {
             for (TXOutput txOutput : txOutputs) {

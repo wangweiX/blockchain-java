@@ -24,7 +24,7 @@ public class ProofOfWork {
     /**
      * 难度目标位
      */
-    public static final int TARGET_BITS = 20;
+    public static final int TARGET_BITS = 10;
 
     /**
      * 区块

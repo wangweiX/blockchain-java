@@ -68,9 +68,9 @@ public class WalletUtils {
      * @return
      * @throws Exception
      */
-    public Set<String> getAddresses() throws Exception {
+    public Set<String> getAddresses() {
         if (walletMap == null) {
-            throw new Exception("ERROR: Fail to get addresses ! There isn't address ! ");
+            throw new RuntimeException("ERROR: Fail to get addresses ! There isn't address ! ");
         }
         return walletMap.keySet();
     }
@@ -81,16 +81,16 @@ public class WalletUtils {
      * @param address 钱包地址
      * @return
      */
-    public Wallet getWallet(String address) throws Exception {
+    public Wallet getWallet(String address) {
         // 检查钱包地址是否合法
         try {
             Base58Check.base58ToBytes(address);
         } catch (Exception e) {
-            throw new Exception("ERROR: invalid wallet address");
+            throw new RuntimeException("ERROR: invalid wallet address");
         }
         Wallet wallet = walletMap.get(address);
         if (wallet == null) {
-            throw new Exception("ERROR: Fail to get wallet ! wallet don't exist ! ");
+            throw new RuntimeException("ERROR: Fail to get wallet ! wallet don't exist ! ");
         }
         return wallet;
     }
