@@ -55,15 +55,10 @@
         </dependency>
 
         <!-- rocksdb -->
-        <!--<dependency>-->
-        <!--<groupId>org.rocksdb</groupId>-->
-        <!--<artifactId>rocksdbjni</artifactId>-->
-        <!--<version>5.9.2</version>-->
-        <!--</dependency>-->
         <dependency>
-            <groupId>org.fusesource.leveldbjni</groupId>
-            <artifactId>leveldbjni-all</artifactId>
-            <version>1.8</version>
+            <groupId>org.rocksdb</groupId>
+            <artifactId>rocksdbjni</artifactId>
+            <version>5.9.2</version>
         </dependency>
 
     </dependencies>

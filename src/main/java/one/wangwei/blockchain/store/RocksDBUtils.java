@@ -3,14 +3,10 @@ package one.wangwei.blockchain.store;
 import com.google.common.collect.Maps;
 import one.wangwei.blockchain.block.Block;
 import one.wangwei.blockchain.util.SerializeUtils;
-import org.iq80.leveldb.DB;
-import org.iq80.leveldb.Options;
+import org.rocksdb.RocksDB;
+import org.rocksdb.RocksDBException;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Map;
-
-import static org.fusesource.leveldbjni.JniDBFactory.factory;
 
 /**
  * 存储工具类
@@ -18,7 +14,7 @@ import static org.fusesource.leveldbjni.JniDBFactory.factory;
  * @author wangwei
  * @date 2018/02/27
  */
-public class LevelDBUtils {
+public class RocksDBUtils {
 
     /**
      * 区块链数据文件
@@ -33,27 +29,27 @@ public class LevelDBUtils {
      */
     private static final String LAST_BLOCK_KEY = "l";
 
-    private volatile static LevelDBUtils instance;
+    private volatile static RocksDBUtils instance;
 
-    public static LevelDBUtils getInstance() {
+    public static RocksDBUtils getInstance() {
         if (instance == null) {
-            synchronized (LevelDBUtils.class) {
+            synchronized (RocksDBUtils.class) {
                 if (instance == null) {
-                    instance = new LevelDBUtils();
+                    instance = new RocksDBUtils();
                 }
             }
         }
         return instance;
     }
 
-    private DB db;
+    private RocksDB db;
 
     /**
-     * 区块桶
+     * block buckets
      */
     private Map<String, byte[]> blocksBucket;
 
-    private LevelDBUtils() {
+    private RocksDBUtils() {
         openDB();
         initBlockBucket();
     }
@@ -62,27 +58,28 @@ public class LevelDBUtils {
      * 打开数据库
      */
     private void openDB() {
-        Options options = new Options();
-        options.createIfMissing(true);
         try {
-            db = factory.open(new File(DB_FILE), options);
-        } catch (IOException e) {
-            throw new RuntimeException("Can not open DB", e);
+            db = RocksDB.open(DB_FILE);
+        } catch (RocksDBException e) {
+            throw new RuntimeException("Fail to open db ! ", e);
         }
     }
-
 
     /**
      * 初始化 blocks 数据桶
      */
     private void initBlockBucket() {
-        byte[] blockBucketKey = SerializeUtils.serialize(BLOCKS_BUCKET_KEY);
-        byte[] blockBucketBytes = db.get(blockBucketKey);
-        if (blockBucketBytes != null) {
-            blocksBucket = (Map) SerializeUtils.deserialize(blockBucketBytes);
-        } else {
-            blocksBucket = Maps.newHashMap();
-            db.put(blockBucketKey, SerializeUtils.serialize(blocksBucket));
+        try {
+            byte[] blockBucketKey = SerializeUtils.serialize(BLOCKS_BUCKET_KEY);
+            byte[] blockBucketBytes = db.get(blockBucketKey);
+            if (blockBucketBytes != null) {
+                blocksBucket = (Map) SerializeUtils.deserialize(blockBucketBytes);
+            } else {
+                blocksBucket = Maps.newHashMap();
+                db.put(blockBucketKey, SerializeUtils.serialize(blocksBucket));
+            }
+        } catch (RocksDBException e) {
+            throw new RuntimeException("Fail to init block bucket ! ", e);
         }
     }
 
@@ -92,8 +89,12 @@ public class LevelDBUtils {
      * @param tipBlockHash
      */
     public void putLastBlockHash(String tipBlockHash) {
-        blocksBucket.put(LAST_BLOCK_KEY, SerializeUtils.serialize(tipBlockHash));
-        db.put(SerializeUtils.serialize(BLOCKS_BUCKET_KEY), SerializeUtils.serialize(blocksBucket));
+        try {
+            blocksBucket.put(LAST_BLOCK_KEY, SerializeUtils.serialize(tipBlockHash));
+            db.put(SerializeUtils.serialize(BLOCKS_BUCKET_KEY), SerializeUtils.serialize(blocksBucket));
+        } catch (RocksDBException e) {
+            throw new RuntimeException("Fail to put last block hash ! ", e);
+        }
     }
 
     /**
@@ -115,8 +116,12 @@ public class LevelDBUtils {
      * @param block
      */
     public void putBlock(Block block) {
-        blocksBucket.put(block.getHash(), SerializeUtils.serialize(block));
-        db.put(SerializeUtils.serialize(BLOCKS_BUCKET_KEY), SerializeUtils.serialize(blocksBucket));
+        try {
+            blocksBucket.put(block.getHash(), SerializeUtils.serialize(block));
+            db.put(SerializeUtils.serialize(BLOCKS_BUCKET_KEY), SerializeUtils.serialize(blocksBucket));
+        } catch (RocksDBException e) {
+            throw new RuntimeException("Fail to put block ! ", e);
+        }
     }
 
     /**
@@ -135,8 +140,8 @@ public class LevelDBUtils {
     public void closeDB() {
         try {
             db.close();
-        } catch (IOException e) {
-            throw new RuntimeException("Fail to close db", e);
+        } catch (Exception e) {
+            throw new RuntimeException("Fail to close db ! ", e);
         }
     }
 }

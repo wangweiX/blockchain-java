@@ -3,7 +3,7 @@ package one.wangwei.blockchain.cli;
 import one.wangwei.blockchain.block.Block;
 import one.wangwei.blockchain.block.Blockchain;
 import one.wangwei.blockchain.pow.ProofOfWork;
-import one.wangwei.blockchain.store.LevelDBUtils;
+import one.wangwei.blockchain.store.RocksDBUtils;
 import org.apache.commons.cli.*;
 
 /**
@@ -46,7 +46,7 @@ public class CLI {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            LevelDBUtils.getInstance().closeDB();
+            RocksDBUtils.getInstance().closeDB();
         }
     }
 
