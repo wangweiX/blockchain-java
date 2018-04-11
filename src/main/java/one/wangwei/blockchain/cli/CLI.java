@@ -6,7 +6,7 @@ import one.wangwei.blockchain.pow.ProofOfWork;
 import one.wangwei.blockchain.transaction.TXOutput;
 import one.wangwei.blockchain.transaction.Transaction;
 import one.wangwei.blockchain.util.Base58Check;
-import one.wangwei.blockchain.util.RocksDBUtils;
+import one.wangwei.blockchain.store.RocksDBUtils;
 import one.wangwei.blockchain.wallet.Wallet;
 import one.wangwei.blockchain.wallet.WalletUtils;
 import org.apache.commons.cli.*;

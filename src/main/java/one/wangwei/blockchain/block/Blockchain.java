@@ -7,7 +7,7 @@ import one.wangwei.blockchain.transaction.SpendableOutputResult;
 import one.wangwei.blockchain.transaction.TXInput;
 import one.wangwei.blockchain.transaction.TXOutput;
 import one.wangwei.blockchain.transaction.Transaction;
-import one.wangwei.blockchain.util.RocksDBUtils;
+import one.wangwei.blockchain.store.RocksDBUtils;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
