@@ -262,6 +262,9 @@ public class Blockchain {
      * @param tx
      */
     private boolean verifyTransactions(Transaction tx) {
+        if (tx.isCoinbase()) {
+            return true;
+        }
         Map<String, Transaction> prevTx = Maps.newHashMap();
         for (TXInput txInput : tx.getInputs()) {
             Transaction transaction = this.findTransaction(txInput.getTxId());
