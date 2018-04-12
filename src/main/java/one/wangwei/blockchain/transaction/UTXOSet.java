@@ -3,6 +3,7 @@ package one.wangwei.blockchain.transaction;
 import com.google.common.collect.Maps;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
 import one.wangwei.blockchain.block.Block;
 import one.wangwei.blockchain.block.Blockchain;
@@ -89,10 +90,11 @@ public class UTXOSet {
     /**
      * 重建 UTXO 池索引
      */
-    public synchronized void reIndex() {
+    @Synchronized
+    public void reIndex() {
         log.info("Start to reIndex UTXO set !");
-        Map<String, TXOutput[]> allUTXOs = blockchain.findAllUTXOs();
         RocksDBUtils.getInstance().cleanChainStateBucket();
+        Map<String, TXOutput[]> allUTXOs = blockchain.findAllUTXOs();
         for (Map.Entry<String, TXOutput[]> entry : allUTXOs.entrySet()) {
             RocksDBUtils.getInstance().putUTXOs(entry.getKey(), entry.getValue());
         }
@@ -103,12 +105,13 @@ public class UTXOSet {
      * 更新UTXO池
      * <p>
      * 当一个新的区块产生时，需要去做两件事情：
-     * 1）从UTXO池中移除花费掉了的交易输出
-     * 2）保存新的未花费交易输出
+     * 1）从UTXO池中移除花费掉了的交易输出；
+     * 2）保存新的未花费交易输出；
      *
-     * @param tipBlock
+     * @param tipBlock 最新的区块
      */
-    public synchronized void update(Block tipBlock) {
+    @Synchronized
+    public void update(Block tipBlock) {
         if (tipBlock == null) {
             log.error("Fail to update UTXO set ! tipBlock is null !");
             throw new RuntimeException("Fail to update UTXO set ! ");
@@ -118,8 +121,8 @@ public class UTXOSet {
             // 根据交易输入排查出剩余未被使用的交易输出
             if (!transaction.isCoinbase()) {
                 for (TXInput txInput : transaction.getInputs()) {
-                    // 需要更新的 UTXOs
-                    TXOutput[] updateUTXOs = {};
+                    // 余下未被使用的交易输出
+                    TXOutput[] remainderUTXOs = {};
                     String txId = Hex.encodeHexString(txInput.getTxId());
                     TXOutput[] txOutputs = RocksDBUtils.getInstance().getUTXOs(txId);
 
@@ -129,15 +132,15 @@ public class UTXOSet {
 
                     for (int outIndex = 0; outIndex < txOutputs.length; outIndex++) {
                         if (outIndex != txInput.getTxOutputIndex()) {
-                            updateUTXOs = ArrayUtils.add(updateUTXOs, txOutputs[outIndex]);
+                            remainderUTXOs = ArrayUtils.add(remainderUTXOs, txOutputs[outIndex]);
                         }
                     }
 
-                    // 没有需要更新的，则删除，否则更新
-                    if (updateUTXOs.length == 0) {
+                    // 没有剩余则删除，否则更新
+                    if (remainderUTXOs.length == 0) {
                         RocksDBUtils.getInstance().deleteUTXOs(txId);
                     } else {
-                        RocksDBUtils.getInstance().putUTXOs(txId, updateUTXOs);
+                        RocksDBUtils.getInstance().putUTXOs(txId, remainderUTXOs);
                     }
                 }
             }

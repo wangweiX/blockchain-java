@@ -148,7 +148,6 @@ public class Blockchain {
         }
     }
 
-
     /**
      * 获取区块链迭代器
      *
