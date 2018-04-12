@@ -4,10 +4,12 @@ import com.google.common.collect.Maps;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import one.wangwei.blockchain.store.RocksDBUtils;
 import one.wangwei.blockchain.transaction.TXInput;
 import one.wangwei.blockchain.transaction.TXOutput;
 import one.wangwei.blockchain.transaction.Transaction;
+import one.wangwei.blockchain.transaction.UTXOSet;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -26,6 +28,7 @@ import java.util.Map;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Slf4j
 public class Blockchain {
 
     private String lastBlockHash;
@@ -35,7 +38,6 @@ public class Blockchain {
      * 从 DB 中恢复区块链数据
      *
      * @return
-     * @throws Exception
      */
     public static Blockchain initBlockchainFromDB() {
         String lastBlockHash = RocksDBUtils.getInstance().getLastBlockHash();
@@ -70,7 +72,7 @@ public class Blockchain {
      *
      * @param transactions
      */
-    public void mineBlock(Transaction[] transactions) throws Exception {
+    public void mineBlock(Transaction[] transactions) {
         // 挖矿前，先验证交易记录
         for (Transaction tx : transactions) {
             if (!this.verifyTransactions(tx)) {
@@ -94,6 +96,7 @@ public class Blockchain {
     private void addBlock(Block block) {
         RocksDBUtils.getInstance().putLastBlockHash(block.getHash());
         RocksDBUtils.getInstance().putBlock(block);
+        new UTXOSet(this).update(block);
         this.lastBlockHash = block.getHash();
     }
 
@@ -270,7 +273,8 @@ public class Blockchain {
         try {
             return tx.verify(prevTx);
         } catch (Exception e) {
-            throw new RuntimeException("Fail to verify transaction ! transaction invalid ! ");
+            log.error("Fail to verify transaction ! transaction invalid ! ", e);
+            throw new RuntimeException("Fail to verify transaction ! transaction invalid ! ", e);
         }
     }
 }

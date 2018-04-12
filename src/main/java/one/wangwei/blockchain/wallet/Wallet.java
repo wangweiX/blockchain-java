@@ -2,6 +2,7 @@ package one.wangwei.blockchain.wallet;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import one.wangwei.blockchain.util.Base58Check;
 import one.wangwei.blockchain.util.BtcAddressUtils;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
@@ -25,7 +26,10 @@ import java.security.Security;
  */
 @Data
 @AllArgsConstructor
+@Slf4j
 public class Wallet implements Serializable {
+
+    private static final long serialVersionUID = 166249065006236265L;
 
     /**
      * 校验码长度
@@ -59,7 +63,8 @@ public class Wallet implements Serializable {
             this.setPrivateKey(privateKey);
             this.setPublicKey(publicKeyBytes);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Fail to init wallet ! ", e);
+            throw new RuntimeException("Fail to init wallet ! ", e);
         }
     }
 

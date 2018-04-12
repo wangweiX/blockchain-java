@@ -3,6 +3,7 @@ package one.wangwei.blockchain.pow;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import one.wangwei.blockchain.block.Block;
 import one.wangwei.blockchain.util.ByteUtils;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -19,6 +20,7 @@ import java.math.BigInteger;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Slf4j
 public class ProofOfWork {
 
     /**
@@ -59,11 +61,12 @@ public class ProofOfWork {
         String shaHex = "";
         long startTime = System.currentTimeMillis();
         while (nonce < Long.MAX_VALUE) {
+            log.info("POW running, nonce=" + nonce);
             byte[] data = this.prepareData(nonce);
             shaHex = DigestUtils.sha256Hex(data);
             if (new BigInteger(shaHex, 16).compareTo(this.target) == -1) {
-                System.out.printf("Elapsed Time: %s seconds \n", (float) (System.currentTimeMillis() - startTime) / 1000);
-                System.out.printf("correct hash Hex: %s \n\n", shaHex);
+                log.info("Elapsed Time: %s seconds \n", (float) (System.currentTimeMillis() - startTime) / 1000);
+                log.info("correct hash Hex: %s \n\n", shaHex);
                 break;
             } else {
                 nonce++;

@@ -2,6 +2,7 @@ package one.wangwei.blockchain.store;
 
 import com.google.common.collect.Maps;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import one.wangwei.blockchain.block.Block;
 import one.wangwei.blockchain.transaction.TXOutput;
 import one.wangwei.blockchain.util.SerializeUtils;
@@ -16,6 +17,7 @@ import java.util.Map;
  * @author wangwei
  * @date 2018/02/27
  */
+@Slf4j
 public class RocksDBUtils {
 
     /**
@@ -74,6 +76,7 @@ public class RocksDBUtils {
         try {
             db = RocksDB.open(DB_FILE);
         } catch (RocksDBException e) {
+            log.error("Fail to open db ! ", e);
             throw new RuntimeException("Fail to open db ! ", e);
         }
     }
@@ -92,6 +95,7 @@ public class RocksDBUtils {
                 db.put(blockBucketKey, SerializeUtils.serialize(blocksBucket));
             }
         } catch (RocksDBException e) {
+            log.error("Fail to init block bucket ! ", e);
             throw new RuntimeException("Fail to init block bucket ! ", e);
         }
     }
@@ -110,6 +114,7 @@ public class RocksDBUtils {
                 db.put(chainstateBucketKey, SerializeUtils.serialize(chainstateBucket));
             }
         } catch (RocksDBException e) {
+            log.error("Fail to init chainstate bucket ! ", e);
             throw new RuntimeException("Fail to init chainstate bucket ! ", e);
         }
     }
@@ -124,6 +129,7 @@ public class RocksDBUtils {
             blocksBucket.put(LAST_BLOCK_KEY, SerializeUtils.serialize(tipBlockHash));
             db.put(SerializeUtils.serialize(BLOCKS_BUCKET_KEY), SerializeUtils.serialize(blocksBucket));
         } catch (RocksDBException e) {
+            log.error("Fail to put last block hash ! tipBlockHash=" + tipBlockHash, e);
             throw new RuntimeException("Fail to put last block hash ! tipBlockHash=" + tipBlockHash, e);
         }
     }
@@ -151,6 +157,7 @@ public class RocksDBUtils {
             blocksBucket.put(block.getHash(), SerializeUtils.serialize(block));
             db.put(SerializeUtils.serialize(BLOCKS_BUCKET_KEY), SerializeUtils.serialize(blocksBucket));
         } catch (RocksDBException e) {
+            log.error("Fail to put block ! block=" + block.toString(), e);
             throw new RuntimeException("Fail to put block ! block=" + block.toString(), e);
         }
     }
@@ -177,6 +184,7 @@ public class RocksDBUtils {
         try {
             chainstateBucket.clear();
         } catch (Exception e) {
+            log.error("Fail to clear chainstate bucket ! ", e);
             throw new RuntimeException("Fail to clear chainstate bucket ! ", e);
         }
     }
@@ -192,6 +200,7 @@ public class RocksDBUtils {
             chainstateBucket.put(key, SerializeUtils.serialize(utxos));
             db.put(SerializeUtils.serialize(CHAINSTATE_BUCKET_KEY), SerializeUtils.serialize(chainstateBucket));
         } catch (Exception e) {
+            log.error("Fail to put UTXOs into chainstate bucket ! key=" + key, e);
             throw new RuntimeException("Fail to put UTXOs into chainstate bucket ! key=" + key, e);
         }
     }
@@ -218,6 +227,7 @@ public class RocksDBUtils {
         try {
             db.close();
         } catch (Exception e) {
+            log.error("Fail to close db ! ", e);
             throw new RuntimeException("Fail to close db ! ", e);
         }
     }

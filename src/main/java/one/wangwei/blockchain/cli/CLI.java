@@ -1,5 +1,6 @@
 package one.wangwei.blockchain.cli;
 
+import lombok.extern.slf4j.Slf4j;
 import one.wangwei.blockchain.block.Block;
 import one.wangwei.blockchain.block.Blockchain;
 import one.wangwei.blockchain.pow.ProofOfWork;
@@ -23,6 +24,7 @@ import java.util.Set;
  * @author wangwei
  * @date 2018/03/08
  */
+@Slf4j
 public class CLI {
 
     private String[] args;
@@ -95,7 +97,7 @@ public class CLI {
                     this.help();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Fail to parse cli command ! ", e);
         } finally {
             RocksDBUtils.getInstance().closeDB();
         }
@@ -121,7 +123,7 @@ public class CLI {
         Blockchain blockchain = Blockchain.createBlockchain(address);
         UTXOSet utxoSet = new UTXOSet(blockchain);
         utxoSet.reIndex();
-        System.out.println("Done ! ");
+        log.info("Done ! ");
     }
 
     /**
@@ -131,7 +133,7 @@ public class CLI {
      */
     private void createWallet() throws Exception {
         Wallet wallet = WalletUtils.getInstance().createWallet();
-        System.out.println("wallet address : " + wallet.getAddress());
+        log.info("wallet address : " + wallet.getAddress());
     }
 
     /**
@@ -142,11 +144,11 @@ public class CLI {
     private void printAddresses() {
         Set<String> addresses = WalletUtils.getInstance().getAddresses();
         if (addresses == null || addresses.isEmpty()) {
-            System.out.println("There isn't address");
+            log.info("There isn't address");
             return;
         }
         for (String address : addresses) {
-            System.out.println("Wallet address: " + address);
+            log.info("Wallet address: " + address);
         }
     }
 
@@ -155,12 +157,13 @@ public class CLI {
      *
      * @param address 钱包地址
      */
-    private void getBalance(String address) throws Exception {
+    private void getBalance(String address) {
         // 检查钱包地址是否合法
         try {
             Base58Check.base58ToBytes(address);
         } catch (Exception e) {
-            throw new Exception("ERROR: invalid wallet address");
+            log.error("ERROR: invalid wallet address", e);
+            throw new RuntimeException("ERROR: invalid wallet address", e);
         }
 
         // 得到公钥Hash值
@@ -177,7 +180,7 @@ public class CLI {
                 balance += txOutput.getValue();
             }
         }
-        System.out.printf("Balance of '%s': %d\n", address, balance);
+        log.info("Balance of '%s': %d\n", address, balance);
     }
 
     /**
@@ -192,22 +195,25 @@ public class CLI {
         try {
             Base58Check.base58ToBytes(from);
         } catch (Exception e) {
-            throw new Exception("ERROR: sender address invalid ! address=" + from);
+            log.error("ERROR: sender address invalid ! address=" + from, e);
+            throw new RuntimeException("ERROR: sender address invalid ! address=" + from, e);
         }
         // 检查钱包地址是否合法
         try {
             Base58Check.base58ToBytes(to);
         } catch (Exception e) {
-            throw new Exception("ERROR: receiver address invalid ! address=" + to);
+            log.error("ERROR: receiver address invalid ! address=" + to, e);
+            throw new RuntimeException("ERROR: receiver address invalid ! address=" + to, e);
         }
         if (amount < 1) {
-            throw new Exception("ERROR: amount invalid ! ");
+            log.error("ERROR: amount invalid ! amount=" + amount);
+            throw new RuntimeException("ERROR: amount invalid ! amount=" + amount);
         }
         Blockchain blockchain = Blockchain.createBlockchain(from);
         Transaction transaction = Transaction.newUTXOTransaction(from, to, amount, blockchain);
         blockchain.mineBlock(new Transaction[]{transaction});
         RocksDBUtils.getInstance().closeDB();
-        System.out.println("Success!");
+        log.info("Success!");
     }
 
     /**
@@ -227,13 +233,13 @@ public class CLI {
     /**
      * 打印出区块链中的所有区块
      */
-    private void printChain() throws Exception {
+    private void printChain() {
         Blockchain blockchain = Blockchain.initBlockchainFromDB();
         for (Blockchain.BlockchainIterator iterator = blockchain.getBlockchainIterator(); iterator.hashNext(); ) {
             Block block = iterator.next();
             if (block != null) {
                 boolean validate = ProofOfWork.newProofOfWork(block).validate();
-                System.out.println(block.toString() + ", validate = " + validate);
+                log.info(block.toString() + ", validate = " + validate);
             }
         }
     }

@@ -3,6 +3,7 @@ package one.wangwei.blockchain.transaction;
 import com.google.common.collect.Maps;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import one.wangwei.blockchain.block.Block;
 import one.wangwei.blockchain.block.Blockchain;
 import one.wangwei.blockchain.store.RocksDBUtils;
@@ -20,6 +21,7 @@ import java.util.Map;
  */
 @NoArgsConstructor
 @AllArgsConstructor
+@Slf4j
 public class UTXOSet {
 
     private Blockchain blockchain;
@@ -88,15 +90,13 @@ public class UTXOSet {
      * 重建 UTXO 池索引
      */
     public synchronized void reIndex() {
-        System.out.println("Start to reIndex UTXO set !");
+        log.error("Start to reIndex UTXO set !");
         Map<String, TXOutput[]> allUTXOs = blockchain.findAllUTXOs();
-
         RocksDBUtils.getInstance().cleanChainStateBucket();
-
         for (Map.Entry<String, TXOutput[]> entry : allUTXOs.entrySet()) {
             RocksDBUtils.getInstance().putUTXOs(entry.getKey(), entry.getValue());
         }
-        System.out.println("ReIndex UTXO set finished ! ");
+        log.error("ReIndex UTXO set finished ! ");
     }
 
     /**
@@ -110,6 +110,7 @@ public class UTXOSet {
      */
     public synchronized void update(Block tipBlock) {
         if (tipBlock == null) {
+            log.error("Fail to update UTXO set ! tipBlock is null !");
             throw new RuntimeException("Fail to update UTXO set ! ");
         }
         for (Transaction transaction : tipBlock.getTransactions()) {

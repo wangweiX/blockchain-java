@@ -3,6 +3,7 @@ package one.wangwei.blockchain.transaction;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import one.wangwei.blockchain.block.Blockchain;
 import one.wangwei.blockchain.util.BtcAddressUtils;
 import one.wangwei.blockchain.util.SerializeUtils;
@@ -37,6 +38,7 @@ import java.util.Map;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Slf4j
 public class Transaction {
 
     private static final int SUBSIDY = 10;
@@ -121,7 +123,8 @@ public class Transaction {
         Map<String, int[]> unspentOuts = result.getUnspentOuts();
 
         if (accumulated < amount) {
-            throw new Exception("ERROR: Not enough funds ! ");
+            log.error("ERROR: Not enough funds ! accumulated=" + accumulated + ", amount=" + amount);
+            throw new RuntimeException("ERROR: Not enough funds ! ");
         }
         Iterator<Map.Entry<String, int[]>> iterator = unspentOuts.entrySet().iterator();
 
@@ -188,7 +191,7 @@ public class Transaction {
         // 再次验证一下交易信息中的交易输入是否正确，也就是能否查找对应的交易数据
         for (TXInput txInput : this.getInputs()) {
             if (prevTxMap.get(Hex.encodeHexString(txInput.getTxId())) == null) {
-                throw new Exception("ERROR: Previous transaction is not correct");
+                throw new RuntimeException("ERROR: Previous transaction is not correct");
             }
         }
 
@@ -237,7 +240,7 @@ public class Transaction {
         // 再次验证一下交易信息中的交易输入是否正确，也就是能否查找对应的交易数据
         for (TXInput txInput : this.getInputs()) {
             if (prevTxMap.get(Hex.encodeHexString(txInput.getTxId())) == null) {
-                throw new Exception("ERROR: Previous transaction is not correct");
+                throw new RuntimeException("ERROR: Previous transaction is not correct");
             }
         }
 

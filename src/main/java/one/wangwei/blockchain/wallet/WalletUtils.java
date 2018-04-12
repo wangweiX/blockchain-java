@@ -1,5 +1,7 @@
 package one.wangwei.blockchain.wallet;
 
+import lombok.Cleanup;
+import lombok.extern.slf4j.Slf4j;
 import one.wangwei.blockchain.util.Base58Check;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
@@ -19,7 +21,10 @@ import java.util.Set;
  * @author wangwei
  * @date 2018/03/21
  */
+@Slf4j
 public class WalletUtils {
+
+
 
     /**
      * 钱包工具实例
@@ -66,10 +71,10 @@ public class WalletUtils {
      * 获取所有的钱包地址
      *
      * @return
-     * @throws Exception
      */
     public Set<String> getAddresses() {
         if (walletMap == null) {
+            log.error("ERROR: Fail to get addresses ! There isn't address ! ");
             throw new RuntimeException("ERROR: Fail to get addresses ! There isn't address ! ");
         }
         return walletMap.keySet();
@@ -86,10 +91,12 @@ public class WalletUtils {
         try {
             Base58Check.base58ToBytes(address);
         } catch (Exception e) {
+            log.error("ERROR: invalid wallet address", e);
             throw new RuntimeException("ERROR: invalid wallet address");
         }
         Wallet wallet = walletMap.get(address);
         if (wallet == null) {
+            log.error("ERROR: Fail to get wallet ! wallet don't exist ! ");
             throw new RuntimeException("ERROR: Fail to get wallet ! wallet don't exist ! ");
         }
         return wallet;
@@ -126,10 +133,12 @@ public class WalletUtils {
     private void saveToDisk() {
         try {
             if (this.walletMap == null) {
-                throw new Exception("ERROR: Fail to save wallet to file ! There isn't data in wallet maps. ");
+                log.error("ERROR: Fail to save wallet to file ! There isn't data in wallet maps. ");
+                throw new RuntimeException("ERROR: Fail to save wallet to file ! There isn't data in wallet maps. ");
             }
-            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-            new ObjectOutputStream(buffer).writeObject(walletMap);
+            @Cleanup ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+            @Cleanup ObjectOutputStream outputStream = new ObjectOutputStream(buffer);
+            outputStream.writeObject(walletMap);
             FileUtils.writeByteArrayToFile(new File(WALLET_FILE), buffer.toByteArray());
         } catch (Exception e) {
             e.printStackTrace();
@@ -143,13 +152,16 @@ public class WalletUtils {
         try {
             File file = new File(WALLET_FILE);
             if (!file.exists() || !file.isFile()) {
-                throw new Exception("ERROR: Fail to load wallet from disk ! file don't exist or isn't a file !");
+                log.error("ERROR: Fail to load wallet from disk ! file don't exist or isn't a file !");
+                throw new RuntimeException("ERROR: Fail to load wallet from disk ! file don't exist or isn't a file !");
             }
             byte[] walletsBytes = FileUtils.readFileToByteArray(file);
-            ByteArrayInputStream buffer = new ByteArrayInputStream(walletsBytes);
-            this.walletMap = (Map<String, Wallet>) new ObjectInputStream(buffer).readObject();
+            @Cleanup ByteArrayInputStream buffer = new ByteArrayInputStream(walletsBytes);
+            @Cleanup ObjectInputStream inputStream = new ObjectInputStream(buffer);
+            this.walletMap = (Map<String, Wallet>) inputStream.readObject();
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("ERROR: Fail to load wallet from disk ! ", e);
+            throw new RuntimeException("ERROR: Fail to load wallet from disk ! ", e);
         }
     }
 
