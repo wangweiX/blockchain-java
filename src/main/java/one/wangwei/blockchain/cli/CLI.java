@@ -19,7 +19,7 @@ import java.util.Arrays;
 import java.util.Set;
 
 /**
- * 程序命令行工具入口
+ * 命令行解析器
  *
  * @author wangwei
  * @date 2018/03/08
