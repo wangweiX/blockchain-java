@@ -209,8 +209,11 @@ public class CLI {
             throw new RuntimeException("ERROR: amount invalid ! amount=" + amount);
         }
         Blockchain blockchain = Blockchain.createBlockchain(from);
+        // 新交易
         Transaction transaction = Transaction.newUTXOTransaction(from, to, amount, blockchain);
-        Block newBlock = blockchain.mineBlock(new Transaction[]{transaction});
+        // 奖励
+        Transaction rewardTx = Transaction.newCoinbaseTX(from, "");
+        Block newBlock = blockchain.mineBlock(new Transaction[]{transaction, rewardTx});
         new UTXOSet(blockchain).update(newBlock);
         log.info("Success!");
     }
