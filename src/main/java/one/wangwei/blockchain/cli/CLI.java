@@ -180,7 +180,7 @@ public class CLI {
                 balance += txOutput.getValue();
             }
         }
-        log.info("Balance of '%s': %d\n", address, balance);
+        log.info("Balance of '{}': {}\n", new Object[]{address, balance});
     }
 
     /**

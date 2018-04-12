@@ -90,13 +90,13 @@ public class UTXOSet {
      * 重建 UTXO 池索引
      */
     public synchronized void reIndex() {
-        log.error("Start to reIndex UTXO set !");
+        log.info("Start to reIndex UTXO set !");
         Map<String, TXOutput[]> allUTXOs = blockchain.findAllUTXOs();
         RocksDBUtils.getInstance().cleanChainStateBucket();
         for (Map.Entry<String, TXOutput[]> entry : allUTXOs.entrySet()) {
             RocksDBUtils.getInstance().putUTXOs(entry.getKey(), entry.getValue());
         }
-        log.error("ReIndex UTXO set finished ! ");
+        log.info("ReIndex UTXO set finished ! ");
     }
 
     /**
@@ -118,6 +118,8 @@ public class UTXOSet {
             // 根据交易输入排查出剩余未被使用的交易输出
             if (!transaction.isCoinbase()) {
                 for (TXInput txInput : transaction.getInputs()) {
+                    // 需要更新的 UTXOs
+                    TXOutput[] updateUTXOs = {};
                     String txId = Hex.encodeHexString(txInput.getTxId());
                     TXOutput[] txOutputs = RocksDBUtils.getInstance().getUTXOs(txId);
 
@@ -125,12 +127,17 @@ public class UTXOSet {
                         continue;
                     }
 
-
                     for (int outIndex = 0; outIndex < txOutputs.length; outIndex++) {
                         if (outIndex != txInput.getTxOutputIndex()) {
-                            TXOutput txOutput = txOutputs[outIndex];
-
+                            updateUTXOs = ArrayUtils.add(updateUTXOs, txOutputs[outIndex]);
                         }
+                    }
+
+                    // 没有需要更新的，则删除，否则更新
+                    if (updateUTXOs.length == 0) {
+                        RocksDBUtils.getInstance().deleteUTXOs(txId);
+                    } else {
+                        RocksDBUtils.getInstance().putUTXOs(txId, updateUTXOs);
                     }
                 }
             }

@@ -221,6 +221,21 @@ public class RocksDBUtils {
 
 
     /**
+     * 删除 UTXO 数据
+     *
+     * @param key 交易ID
+     */
+    public void deleteUTXOs(String key) {
+        try {
+            chainstateBucket.remove(key);
+            db.put(SerializeUtils.serialize(CHAINSTATE_BUCKET_KEY), SerializeUtils.serialize(chainstateBucket));
+        } catch (Exception e) {
+            log.error("Fail to delete UTXOs by key ! key=" + key, e);
+            throw new RuntimeException("Fail to delete UTXOs by key ! key=" + key, e);
+        }
+    }
+
+    /**
      * 关闭数据库
      */
     public void closeDB() {
