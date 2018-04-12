@@ -74,6 +74,7 @@ public class Blockchain {
         // 挖矿前，先验证交易记录
         for (Transaction tx : transactions) {
             if (!this.verifyTransactions(tx)) {
+                log.error("ERROR: Fail to mine block ! Invalid transaction ! tx=" + tx.toString());
                 throw new RuntimeException("ERROR: Fail to mine block ! Invalid transaction ! ");
             }
         }

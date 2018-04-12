@@ -55,6 +55,10 @@ public class Transaction {
      * 交易输出
      */
     private TXOutput[] outputs;
+    /**
+     * 创建日期
+     */
+    private long createTime;
 
     /**
      * 计算交易信息的Hash值
@@ -85,7 +89,8 @@ public class Transaction {
         // 创建交易输出
         TXOutput txOutput = TXOutput.newTXOutput(SUBSIDY, to);
         // 创建交易
-        Transaction tx = new Transaction(null, new TXInput[]{txInput}, new TXOutput[]{txOutput});
+        Transaction tx = new Transaction(null, new TXInput[]{txInput},
+                new TXOutput[]{txOutput}, System.currentTimeMillis());
         // 设置交易ID
         tx.setTxId(tx.hash());
         return tx;
@@ -145,7 +150,7 @@ public class Transaction {
             txOutput = ArrayUtils.add(txOutput, TXOutput.newTXOutput((accumulated - amount), from));
         }
 
-        Transaction newTx = new Transaction(null, txInputs, txOutput);
+        Transaction newTx = new Transaction(null, txInputs, txOutput, System.currentTimeMillis());
         newTx.setTxId(newTx.hash());
 
         // 进行交易签名
@@ -173,7 +178,7 @@ public class Transaction {
             tmpTXOutputs[i] = new TXOutput(txOutput.getValue(), txOutput.getPubKeyHash());
         }
 
-        return new Transaction(this.getTxId(), tmpTXInputs, tmpTXOutputs);
+        return new Transaction(this.getTxId(), tmpTXInputs, tmpTXOutputs, this.getCreateTime());
     }
 
 
