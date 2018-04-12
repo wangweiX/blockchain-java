@@ -211,8 +211,8 @@ public class CLI {
         }
         Blockchain blockchain = Blockchain.createBlockchain(from);
         Transaction transaction = Transaction.newUTXOTransaction(from, to, amount, blockchain);
-        blockchain.mineBlock(new Transaction[]{transaction});
-        RocksDBUtils.getInstance().closeDB();
+        Block newBlock = blockchain.mineBlock(new Transaction[]{transaction});
+        new UTXOSet(blockchain).update(newBlock);
         log.info("Success!");
     }
 
