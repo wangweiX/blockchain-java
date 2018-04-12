@@ -138,8 +138,6 @@ public class CLI {
 
     /**
      * 打印钱包地址
-     *
-     * @throws Exception
      */
     private void printAddresses() {
         Set<String> addresses = WalletUtils.getInstance().getAddresses();
@@ -189,6 +187,7 @@ public class CLI {
      * @param from
      * @param to
      * @param amount
+     * @throws Exception
      */
     private void send(String from, String to, int amount) throws Exception {
         // 检查钱包地址是否合法

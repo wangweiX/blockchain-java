@@ -15,7 +15,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -197,7 +196,7 @@ public class Blockchain {
      */
     private Map<String, int[]> getAllSpentTXOs() {
         // 定义TxId ——> spentOutIndex[]，存储交易ID与已被花费的交易输出数组索引值
-        Map<String, int[]> spentTXOs = new HashMap<>();
+        Map<String, int[]> spentTXOs = Maps.newHashMap();
         for (BlockchainIterator blockchainIterator = this.getBlockchainIterator(); blockchainIterator.hashNext(); ) {
             Block block = blockchainIterator.next();
 
@@ -249,7 +248,7 @@ public class Blockchain {
      */
     public void signTransaction(Transaction tx, BCECPrivateKey privateKey) throws Exception {
         // 先来找到这笔新的交易中，交易输入所引用的前面的多笔交易的数据
-        Map<String, Transaction> prevTxMap = new HashMap<>();
+        Map<String, Transaction> prevTxMap = Maps.newHashMap();
         for (TXInput txInput : tx.getInputs()) {
             Transaction prevTx = this.findTransaction(txInput.getTxId());
             prevTxMap.put(Hex.encodeHexString(txInput.getTxId()), prevTx);
@@ -263,7 +262,7 @@ public class Blockchain {
      * @param tx
      */
     private boolean verifyTransactions(Transaction tx) {
-        Map<String, Transaction> prevTx = new HashMap<>();
+        Map<String, Transaction> prevTx = Maps.newHashMap();
         for (TXInput txInput : tx.getInputs()) {
             Transaction transaction = this.findTransaction(txInput.getTxId());
             prevTx.put(Hex.encodeHexString(txInput.getTxId()), transaction);
