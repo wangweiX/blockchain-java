@@ -2,7 +2,6 @@ package one.wangwei.blockchain.wallet;
 
 import lombok.Cleanup;
 import lombok.extern.slf4j.Slf4j;
-import one.wangwei.blockchain.util.Base58Check;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 
@@ -23,8 +22,6 @@ import java.util.Set;
  */
 @Slf4j
 public class WalletUtils {
-
-
 
     /**
      * 钱包工具实例
@@ -87,13 +84,6 @@ public class WalletUtils {
      * @return
      */
     public Wallet getWallet(String address) {
-        // 检查钱包地址是否合法
-        try {
-            Base58Check.base58ToBytes(address);
-        } catch (Exception e) {
-            log.error("ERROR: invalid wallet address", e);
-            throw new RuntimeException("ERROR: invalid wallet address");
-        }
         Wallet wallet = walletMap.get(address);
         if (wallet == null) {
             log.error("ERROR: Fail to get wallet ! wallet don't exist ! ");
