@@ -36,7 +36,7 @@ public class MerkleTree {
      */
     private void constructTree(byte[][] leafHashes) {
         if (leafHashes == null || leafHashes.length < 1) {
-            throw new RuntimeException("ERROR:Fail to construct merkle tree ! leafSignatures data invalid ! ");
+            throw new RuntimeException("ERROR:Fail to construct merkle tree ! leafHashes data invalid ! ");
         }
         this.leafHashes = leafHashes;
         List<Node> parents = bottomLevel(leafHashes);
@@ -62,7 +62,7 @@ public class MerkleTree {
             parents.add(parent);
         }
 
-        // 内部节点奇数个，只对lift节点进行计算
+        // 内部节点奇数个，只对left节点进行计算
         if (children.size() % 2 != 0) {
             Node child = children.get(children.size() - 1);
             Node parent = constructInternalNode(child, null);
