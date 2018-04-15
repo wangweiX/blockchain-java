@@ -6,9 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import one.wangwei.blockchain.pow.PowResult;
 import one.wangwei.blockchain.pow.ProofOfWork;
+import one.wangwei.blockchain.transaction.MerkleTree;
 import one.wangwei.blockchain.transaction.Transaction;
-import one.wangwei.blockchain.util.ByteUtils;
-import org.apache.commons.codec.digest.DigestUtils;
 
 import java.time.Instant;
 
@@ -82,6 +81,6 @@ public class Block {
         for (int i = 0; i < this.getTransactions().length; i++) {
             txIdArrays[i] = this.getTransactions()[i].hash();
         }
-        return DigestUtils.sha256(ByteUtils.merge(txIdArrays));
+        return new MerkleTree(txIdArrays).getRoot().getHash();
     }
 }
