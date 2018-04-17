@@ -146,7 +146,7 @@ public class MerkleTree {
      * Merkle Tree节点
      */
     @Data
-    private static class Node {
+    public static class Node {
         private byte[] hash;
         private Node left;
         private Node right;
