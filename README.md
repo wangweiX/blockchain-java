@@ -1,6 +1,5 @@
-[![Build Status](https://travis-ci.org/wangweiX/blockchain-java.svg?branch=master)](https://travis-ci.org/wangweiX/blockchain-java)
-
 ## 基于Java语言构建区块链
+[![Build Status](https://travis-ci.org/wangweiX/blockchain-java.svg?branch=master)](https://travis-ci.org/wangweiX/blockchain-java)
 
 > 本系列文章的思路均来自：https://github.com/Jeiwan/blockchain_go
 
@@ -21,5 +20,13 @@
 - [交易 - Merkle Tree](https://wangwei.one/posts/630e7ae5.html)
 
 
-### 反馈
-- 非常欢迎大家回信与我交流区块链技术
+### 反馈&提示
+- 由于本人水平有限，若代码或文章存在错误或不足，还望指正；
+- 如若[博客](https://wangwei.one/)网站无法打开，请开启翻墙代理全局模式；
+
+
+### 社区
+
+> 欢迎各位志同道合的朋友免费加入我的小密圈，一起探索区块链
+
+![blockchain-exploer](https://img.i7years.com/blog/blockchain_exploer.png)
