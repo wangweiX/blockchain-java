@@ -25,8 +25,8 @@
 - 如若[博客](https://wangwei.one/)网站无法打开，请开启翻墙代理全局模式；
 
 
-### 社区
+### 社群
 
-> 欢迎各位志同道合的朋友免费加入我的小密圈，一起探索区块链
+> 欢迎各位朋友加入我的免费小密圈，一起探索区块链
 
 ![blockchain-exploer](https://img.i7years.com/blog/blockchain_exploer.png)
