@@ -12,6 +12,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.jce.spec.ECParameterSpec;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.Serializable;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -93,25 +94,31 @@ public class Wallet implements Serializable {
      *
      * @return
      */
-    public String getAddress() throws Exception {
-        // 1. 获取 ripemdHashedKey
-        byte[] ripemdHashedKey = BtcAddressUtils.ripeMD160Hash(this.getPublicKey());
+    public String getAddress() {
+        try {
+            // 1. 获取 ripemdHashedKey
+            byte[] ripemdHashedKey = BtcAddressUtils.ripeMD160Hash(this.getPublicKey());
 
-        // 2. 添加版本 0x00
-        ByteArrayOutputStream addrStream = new ByteArrayOutputStream();
-        addrStream.write((byte) 0);
-        addrStream.write(ripemdHashedKey);
-        byte[] versionedPayload = addrStream.toByteArray();
+            // 2. 添加版本 0x00
+            ByteArrayOutputStream addrStream = new ByteArrayOutputStream();
+            addrStream.write((byte) 0);
+            addrStream.write(ripemdHashedKey);
+            byte[] versionedPayload = addrStream.toByteArray();
 
-        // 3. 计算校验码
-        byte[] checksum = BtcAddressUtils.checksum(versionedPayload);
+            // 3. 计算校验码
+            byte[] checksum = BtcAddressUtils.checksum(versionedPayload);
 
-        // 4. 得到 version + paylod + checksum 的组合
-        addrStream.write(checksum);
-        byte[] binaryAddress = addrStream.toByteArray();
+            // 4. 得到 version + paylod + checksum 的组合
+            addrStream.write(checksum);
+            byte[] binaryAddress = addrStream.toByteArray();
 
-        // 5. 执行Base58转换处理
-        return Base58Check.rawBytesToBase58(binaryAddress);
+            // 5. 执行Base58转换处理
+            return Base58Check.rawBytesToBase58(binaryAddress);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        throw new RuntimeException("Fail to get wallet address ! ");
     }
+
 
 }
