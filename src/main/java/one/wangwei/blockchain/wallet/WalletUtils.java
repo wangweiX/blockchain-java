@@ -1,14 +1,18 @@
 package one.wangwei.blockchain.wallet;
 
+import com.google.common.collect.Maps;
+import lombok.AllArgsConstructor;
+import lombok.Cleanup;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import one.wangwei.blockchain.util.Base58Check;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.output.ByteArrayOutputStream;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.HashMap;
+import javax.crypto.Cipher;
+import javax.crypto.CipherInputStream;
+import javax.crypto.CipherOutputStream;
+import javax.crypto.SealedObject;
+import javax.crypto.spec.SecretKeySpec;
+import java.io.*;
 import java.util.Map;
 import java.util.Set;
 
@@ -46,9 +50,13 @@ public class WalletUtils {
      */
     private final static String WALLET_FILE = "wallet.dat";
     /**
-     * 钱包数据
+     * 加密算法
      */
-    private Map<String, Wallet> walletMap = new HashMap<>();
+    private static final String ALGORITHM = "AES";
+    /**
+     * 密文
+     */
+    private static final byte[] CIPHER_TEXT = "2oF@5sC%DNf32y!TmiZi!tG9W5rLaniD".getBytes();
 
     /**
      * 初始化钱包文件
@@ -56,7 +64,7 @@ public class WalletUtils {
     private void initWalletFile() {
         File file = new File(WALLET_FILE);
         if (!file.exists()) {
-            this.saveToDisk();
+            this.saveToDisk(new Wallets());
         } else {
             this.loadFromDisk();
         }
@@ -69,10 +77,8 @@ public class WalletUtils {
      * @throws Exception
      */
     public Set<String> getAddresses() throws Exception {
-        if (walletMap == null) {
-            throw new Exception("ERROR: Fail to get addresses ! There isn't address ! ");
-        }
-        return walletMap.keySet();
+        Wallets wallets = this.loadFromDisk();
+        return wallets.getAddresses();
     }
 
     /**
@@ -82,17 +88,8 @@ public class WalletUtils {
      * @return
      */
     public Wallet getWallet(String address) throws Exception {
-        // 检查钱包地址是否合法
-        try {
-            Base58Check.base58ToBytes(address);
-        } catch (Exception e) {
-            throw new Exception("ERROR: invalid wallet address");
-        }
-        Wallet wallet = walletMap.get(address);
-        if (wallet == null) {
-            throw new Exception("ERROR: Fail to get wallet ! wallet don't exist ! ");
-        }
-        return wallet;
+        Wallets wallets = this.loadFromDisk();
+        return wallets.getWallet(address);
     }
 
     /**
@@ -102,35 +99,30 @@ public class WalletUtils {
      */
     public Wallet createWallet() {
         Wallet wallet = new Wallet();
-        this.addWallet(wallet);
+        Wallets wallets = this.loadFromDisk();
+        wallets.addWallet(wallet);
+        this.saveToDisk(wallets);
         return wallet;
-    }
-
-    /**
-     * 添加钱包
-     *
-     * @param wallet
-     */
-    private void addWallet(Wallet wallet) {
-        try {
-            this.walletMap.put(wallet.getAddress(), wallet);
-            this.saveToDisk();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     /**
      * 保存钱包数据
      */
-    private void saveToDisk() {
+    private void saveToDisk(Wallets wallets) {
         try {
-            if (this.walletMap == null) {
-                throw new Exception("ERROR: Fail to save wallet to file ! There isn't data in wallet maps. ");
+            if (wallets == null) {
+                throw new Exception("ERROR: Fail to save wallet to file ! data is null ! ");
             }
-            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-            new ObjectOutputStream(buffer).writeObject(walletMap);
-            FileUtils.writeByteArrayToFile(new File(WALLET_FILE), buffer.toByteArray());
+            SecretKeySpec sks = new SecretKeySpec(CIPHER_TEXT, ALGORITHM);
+            // Create cipher
+            Cipher cipher = Cipher.getInstance(ALGORITHM);
+            cipher.init(Cipher.ENCRYPT_MODE, sks);
+            SealedObject sealedObject = new SealedObject(wallets, cipher);
+            // Wrap the output stream
+            @Cleanup CipherOutputStream cos = new CipherOutputStream(
+                    new BufferedOutputStream(new FileOutputStream(WALLET_FILE)), cipher);
+            @Cleanup ObjectOutputStream outputStream = new ObjectOutputStream(cos);
+            outputStream.writeObject(sealedObject);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -139,18 +131,78 @@ public class WalletUtils {
     /**
      * 加载钱包数据
      */
-    private void loadFromDisk() {
+    private Wallets loadFromDisk() {
         try {
-            File file = new File(WALLET_FILE);
-            if (!file.exists() || !file.isFile()) {
-                throw new Exception("ERROR: Fail to load wallet from disk ! file don't exist or isn't a file !");
-            }
-            byte[] walletsBytes = FileUtils.readFileToByteArray(file);
-            ByteArrayInputStream buffer = new ByteArrayInputStream(walletsBytes);
-            this.walletMap = (Map<String, Wallet>) new ObjectInputStream(buffer).readObject();
+            SecretKeySpec sks = new SecretKeySpec(CIPHER_TEXT, ALGORITHM);
+            Cipher cipher = Cipher.getInstance(ALGORITHM);
+            cipher.init(Cipher.DECRYPT_MODE, sks);
+            @Cleanup CipherInputStream cipherInputStream = new CipherInputStream(
+                    new BufferedInputStream(new FileInputStream(WALLET_FILE)), cipher);
+            @Cleanup ObjectInputStream inputStream = new ObjectInputStream(cipherInputStream);
+            SealedObject sealedObject = (SealedObject) inputStream.readObject();
+            return (Wallets) sealedObject.getObject(cipher);
         } catch (Exception e) {
             e.printStackTrace();
         }
+        throw new RuntimeException("Fail to load wallet file from disk ! ");
     }
 
+    /**
+     * 钱包存储对象
+     */
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Wallets implements Serializable {
+
+        private static final long serialVersionUID = -2542070981569243131L;
+
+        private Map<String, Wallet> walletMap = Maps.newHashMap();
+
+        /**
+         * 添加钱包
+         *
+         * @param wallet
+         */
+        private void addWallet(Wallet wallet) {
+            try {
+                this.walletMap.put(wallet.getAddress(), wallet);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        /**
+         * 获取所有的钱包地址
+         *
+         * @return
+         * @throws Exception
+         */
+        Set<String> getAddresses() throws Exception {
+            if (walletMap == null) {
+                throw new Exception("ERROR: Fail to get addresses ! There isn't address ! ");
+            }
+            return walletMap.keySet();
+        }
+
+        /**
+         * 获取钱包数据
+         *
+         * @param address 钱包地址
+         * @return
+         */
+        Wallet getWallet(String address) throws Exception {
+            // 检查钱包地址是否合法
+            try {
+                Base58Check.base58ToBytes(address);
+            } catch (Exception e) {
+                throw new Exception("ERROR: invalid wallet address");
+            }
+            Wallet wallet = walletMap.get(address);
+            if (wallet == null) {
+                throw new Exception("ERROR: Fail to get wallet ! wallet don't exist ! ");
+            }
+            return wallet;
+        }
+    }
 }
