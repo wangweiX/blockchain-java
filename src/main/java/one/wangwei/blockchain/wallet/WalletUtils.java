@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Cleanup;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import one.wangwei.blockchain.util.Base58Check;
 
 import javax.crypto.Cipher;
@@ -23,6 +24,7 @@ import java.util.Set;
  * @author wangwei
  * @date 2018/03/21
  */
+@Slf4j
 public class WalletUtils {
 
     /**
@@ -74,9 +76,8 @@ public class WalletUtils {
      * 获取所有的钱包地址
      *
      * @return
-     * @throws Exception
      */
-    public Set<String> getAddresses() throws Exception {
+    public Set<String> getAddresses() {
         Wallets wallets = this.loadFromDisk();
         return wallets.getAddresses();
     }
@@ -87,7 +88,7 @@ public class WalletUtils {
      * @param address 钱包地址
      * @return
      */
-    public Wallet getWallet(String address) throws Exception {
+    public Wallet getWallet(String address) {
         Wallets wallets = this.loadFromDisk();
         return wallets.getWallet(address);
     }
@@ -111,7 +112,8 @@ public class WalletUtils {
     private void saveToDisk(Wallets wallets) {
         try {
             if (wallets == null) {
-                throw new Exception("ERROR: Fail to save wallet to file ! data is null ! ");
+                log.error("Fail to save wallet to file ! wallets is null ");
+                throw new Exception("ERROR: Fail to save wallet to file !");
             }
             SecretKeySpec sks = new SecretKeySpec(CIPHER_TEXT, ALGORITHM);
             // Create cipher
@@ -144,7 +146,7 @@ public class WalletUtils {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        throw new RuntimeException("Fail to load wallet file from disk ! ");
+        throw new RuntimeException("Fail to load wallet from disk ! ");
     }
 
     /**
@@ -168,7 +170,8 @@ public class WalletUtils {
             try {
                 this.walletMap.put(wallet.getAddress(), wallet);
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error("Fail to add wallet ! ", e);
+                throw new RuntimeException("Fail to add wallet !");
             }
         }
 
@@ -176,11 +179,11 @@ public class WalletUtils {
          * 获取所有的钱包地址
          *
          * @return
-         * @throws Exception
          */
-        Set<String> getAddresses() throws Exception {
+        Set<String> getAddresses() {
             if (walletMap == null) {
-                throw new Exception("ERROR: Fail to get addresses ! There isn't address ! ");
+                log.error("Fail to get address ! walletMap is null ! ");
+                throw new RuntimeException("Fail to get addresses ! ");
             }
             return walletMap.keySet();
         }
@@ -191,16 +194,18 @@ public class WalletUtils {
          * @param address 钱包地址
          * @return
          */
-        Wallet getWallet(String address) throws Exception {
+        Wallet getWallet(String address) {
             // 检查钱包地址是否合法
             try {
                 Base58Check.base58ToBytes(address);
             } catch (Exception e) {
-                throw new Exception("ERROR: invalid wallet address");
+                log.error("Fail to get wallet ! address invalid ! address=" + address, e);
+                throw new RuntimeException("Fail to get wallet ! ");
             }
             Wallet wallet = walletMap.get(address);
             if (wallet == null) {
-                throw new Exception("ERROR: Fail to get wallet ! wallet don't exist ! ");
+                log.error("Fail to get wallet ! wallet don`t exist ! address=" + address);
+                throw new RuntimeException("Fail to get wallet ! ");
             }
             return wallet;
         }
