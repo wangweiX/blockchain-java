@@ -126,7 +126,8 @@ public class WalletUtils {
             @Cleanup ObjectOutputStream outputStream = new ObjectOutputStream(cos);
             outputStream.writeObject(sealedObject);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Fail to save wallet to disk !", e);
+            throw new RuntimeException("Fail to save wallet to disk !");
         }
     }
 
@@ -144,9 +145,9 @@ public class WalletUtils {
             SealedObject sealedObject = (SealedObject) inputStream.readObject();
             return (Wallets) sealedObject.getObject(cipher);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Fail to load wallet from disk ! ", e);
+            throw new RuntimeException("Fail to load wallet from disk ! ");
         }
-        throw new RuntimeException("Fail to load wallet from disk ! ");
     }
 
     /**
