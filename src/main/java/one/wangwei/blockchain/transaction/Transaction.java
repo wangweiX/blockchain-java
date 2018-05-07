@@ -271,7 +271,7 @@ public class Transaction {
             txCopy.setTxId(txCopy.hash());
             txInputCopy.setPubKey(null);
 
-            // 使用椭圆曲线 x,y 点去生成公钥Key
+            // 根据椭圆曲线 x,y 点去生成公钥Key
             BigInteger x = new BigInteger(1, Arrays.copyOfRange(txInput.getPubKey(), 1, 33));
             BigInteger y = new BigInteger(1, Arrays.copyOfRange(txInput.getPubKey(), 33, 65));
             ECPoint ecPoint = ecParameters.getCurve().createPoint(x, y);

@@ -31,7 +31,6 @@ public class Blockchain {
 
     private String lastBlockHash;
 
-
     /**
      * 从 DB 中恢复区块链数据
      *
@@ -98,7 +97,6 @@ public class Blockchain {
         RocksDBUtils.getInstance().putBlock(block);
         this.lastBlockHash = block.getHash();
     }
-
 
     /**
      * 区块链迭代器

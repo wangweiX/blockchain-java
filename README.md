@@ -18,8 +18,10 @@
 - [交易 - UTXO](https://wangwei.one/posts/9cf9e42a.html)
 - [地址 - 钱包](https://wangwei.one/posts/f9088e0f.html)
 - [交易 - Merkle Tree](https://wangwei.one/posts/630e7ae5.html)
+- [脚本 — 智能合约]()
 
 
 ### 反馈&提示
 - 由于本人水平有限，若代码或文章存在错误或不足，还望指正；
 - 如若[博客](https://wangwei.one/)网站无法打开，请开启翻墙代理全局模式；
+- 如果你觉得代码不错，请给我一个Star[:blush:][:stuck_out_tongue_closed_eyes:]
