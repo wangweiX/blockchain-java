@@ -120,5 +120,4 @@ public class Wallet implements Serializable {
         throw new RuntimeException("Fail to get wallet address ! ");
     }
 
-
 }
