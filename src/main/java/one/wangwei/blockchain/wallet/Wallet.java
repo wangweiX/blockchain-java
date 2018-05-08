@@ -117,5 +117,21 @@ public class Wallet implements Serializable {
         throw new RuntimeException("Fail to get wallet address ! ");
     }
 
+    /**
+     * 私钥备份
+     *
+     * @return
+     */
+    public String backupPrivateKey() {
+        // TODO
+        return "";
+    }
+
+    /**
+     * 导入私钥
+     */
+    public void importPrivateKey() {
+        // TODO
+    }
 
 }
