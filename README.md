@@ -18,7 +18,7 @@
 - [交易 - UTXO](https://wangwei.one/posts/9cf9e42a.html)
 - [地址 - 钱包](https://wangwei.one/posts/f9088e0f.html)
 - [交易 - Merkle Tree](https://wangwei.one/posts/630e7ae5.html)
-- [脚本 — 智能合约]()
+- [脚本 — 智能合约](https://wangwei.one/posts/643232a4.html)
 
 
 ### 反馈&提示
