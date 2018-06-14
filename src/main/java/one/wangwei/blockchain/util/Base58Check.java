@@ -5,7 +5,6 @@
  * https://www.nayuki.io/page/bitcoin-cryptography-library
  * https://github.com/nayuki/Bitcoin-Cryptography-Library
  */
-
 package one.wangwei.blockchain.util;
 
 import java.io.ByteArrayOutputStream;
@@ -13,20 +12,27 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Arrays;
 
-
 /**
- * Converts between an array of bytes and a Base58Check string. Not instantiable.
+ * Base58 转化工具
  */
 public final class Base58Check {
 
-    /*---- Static functions ----*/
-
-    // Adds the checksum and converts to Base58Check. Note that the caller needs to prepend the version byte(s).
+    /**
+     * 添加校验码并转化为 Base58 字符串
+     *
+     * @param data
+     * @return
+     */
     public static String bytesToBase58(byte[] data) {
         return rawBytesToBase58(addCheckHash(data));
     }
 
-    // Directly converts to Base58Check without adding a checksum.
+    /**
+     * 转化为 Base58 字符串
+     *
+     * @param data
+     * @return
+     */
     public static String rawBytesToBase58(byte[] data) {
         // Convert to base-58 string
         StringBuilder sb = new StringBuilder();
@@ -44,7 +50,12 @@ public final class Base58Check {
     }
 
 
-    // Returns a new byte array by concatenating the given array with its checksum.
+    /**
+     * 添加校验码并返回待有校验码的原生数据
+     *
+     * @param data
+     * @return
+     */
     static byte[] addCheckHash(byte[] data) {
         try {
             byte[] hash = Arrays.copyOf(Sha256.getDoubleHash(data).toBytes(), 4);
@@ -58,8 +69,13 @@ public final class Base58Check {
     }
 
 
-    // Converts the given Base58Check string to a byte array, verifies the checksum, and removes the checksum to return the payload.
-    // The caller is responsible for handling the version byte(s).
+    /**
+     * 将 Base58Check 字符串转化为 byte 数组，并校验其校验码
+     * 返回的byte数组带有版本号，但不带有校验码
+     *
+     * @param s
+     * @return
+     */
     public static byte[] base58ToBytes(String s) {
         byte[] concat = base58ToRawBytes(s);
         byte[] data = Arrays.copyOf(concat, concat.length - 4);
@@ -71,7 +87,12 @@ public final class Base58Check {
     }
 
 
-    // Converts the given Base58Check string to a byte array, without checking or removing the trailing 4-byte checksum.
+    /**
+     * 将 Base58Check 字符串转化为 byte 数组
+     *
+     * @param s
+     * @return
+     */
     static byte[] base58ToRawBytes(String s) {
         // Parse base-58 string
         BigInteger num = BigInteger.ZERO;

@@ -28,7 +28,6 @@ public class BtcAddressUtils {
         return output;
     }
 
-
     /**
      * 生成公钥的校验码
      *
@@ -40,4 +39,16 @@ public class BtcAddressUtils {
         byte[] secondSHA = DigestUtils.sha256(firstSHA);
         return Arrays.copyOfRange(secondSHA, 0, 4);
     }
+
+    /**
+     * 从比特币地址中获取 RIPEMD160 Hash 值
+     *
+     * @param address
+     * @return
+     */
+    public static byte[] getRipeMD160Hash(String address) {
+        byte[] versionedPayload = Base58Check.base58ToBytes(address);
+        return Arrays.copyOfRange(versionedPayload, 1, versionedPayload.length);
+    }
+
 }
