@@ -1,7 +1,9 @@
 package one.wangwei.blockchain.script;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import lombok.Data;
+import one.wangwei.blockchain.util.BtcAddressUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -38,7 +40,7 @@ public class Script {
     }
 
     /**
-     * 将 0 ~ 16 之间的数字转化为操作码
+     * 将 0-16 之间的数字转化为操作码
      *
      * @param value
      * @return
@@ -52,6 +54,37 @@ public class Script {
         } else {
             return value - 1 + OP_1;
         }
+    }
+
+    /**
+     * 将操作码转化为数字
+     *
+     * @param opcode
+     * @return
+     */
+    public static int decodeFromOpN(int opcode) {
+        checkArgument((opcode == OP_0 || opcode == OP_1NEGATE) || (opcode >= OP_1 && opcode <= OP_16), "decodeFromOpN called on non OP_N opcode");
+        if (opcode == OP_0) {
+            return 0;
+        } else if (opcode == OP_1NEGATE) {
+            return -1;
+        } else {
+            return opcode + 1 - OP_1;
+        }
+    }
+
+    /**
+     * 判断脚本是否为 P2PKH
+     *
+     * @return
+     */
+    public boolean isSendToAddress() {
+        return chunks.size() == 5
+                && chunks.get(0).equalsOpCode(OP_DUP)
+                && chunks.get(1).equalsOpCode(OP_HASH160)
+                && chunks.get(2).getData().length == BtcAddressUtils.LENGTH
+                && chunks.get(3).equalsOpCode(OP_EQUALVERIFY)
+                && chunks.get(4).equalsOpCode(OP_CHECKSIG);
     }
 
     /**
@@ -74,4 +107,16 @@ public class Script {
             throw new RuntimeException(e);
         }
     }
+
+    /**
+     * 将脚本转化为字符串，例如:
+     * "OP_DUP OP_HASH160 7f9b1a7fb68d60c536c2fd8aeaa53a8f3cc025a8 OP_EQUALVERIFY OP_CHECKSIG"
+     *
+     * @return
+     */
+    @Override
+    public String toString() {
+        return Joiner.on(" ").join(chunks);
+    }
+
 }

@@ -1,5 +1,6 @@
 package one.wangwei.blockchain.script;
 
+import com.google.common.io.BaseEncoding;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -7,7 +8,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import static com.google.common.base.Preconditions.checkState;
-import static one.wangwei.blockchain.script.ScriptOpCodes.OP_PUSHDATA4;
+import static one.wangwei.blockchain.script.ScriptOpCodes.*;
 
 /**
  * 脚本元素基本组块
@@ -26,11 +27,8 @@ public class ScriptChunk {
     private int opcode;
     private byte[] data;
 
-    public void write(OutputStream stream) throws IOException {
-        if (isOpCode()) {
-            checkState(data == null);
-            stream.write(opcode);
-        }
+    public boolean equalsOpCode(int opcode) {
+        return opcode == this.opcode;
     }
 
     /**
@@ -40,6 +38,31 @@ public class ScriptChunk {
      */
     public boolean isOpCode() {
         return opcode > OP_PUSHDATA4;
+    }
+
+    public void write(OutputStream stream) throws IOException {
+        if (isOpCode()) {
+            checkState(data == null);
+            stream.write(opcode);
+        }
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder buf = new StringBuilder();
+        if (isOpCode()) {
+            buf.append(getOpCodeName(opcode));
+        } else if (data != null) {
+            // Data chunk
+            buf.append(getPushDataName(opcode))
+                    .append("[")
+                    .append(BaseEncoding.base16().lowerCase().encode(data))
+                    .append("]");
+        } else {
+            // Small num
+            buf.append(Script.decodeFromOpN(opcode));
+        }
+        return buf.toString();
     }
 
 }

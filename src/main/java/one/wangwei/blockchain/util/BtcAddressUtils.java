@@ -13,6 +13,11 @@ import org.bouncycastle.util.Arrays;
 public class BtcAddressUtils {
 
     /**
+     * 公钥 RIPEMD160 Hash 长度
+     */
+    public static final int LENGTH = 20;
+
+    /**
      * 计算公钥的 RIPEMD160 Hash值
      *
      * @param pubKey 公钥

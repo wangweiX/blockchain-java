@@ -3,7 +3,9 @@ package one.wangwei.blockchain.transaction;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import one.wangwei.blockchain.util.Base58Check;
+import one.wangwei.blockchain.script.Script;
+import one.wangwei.blockchain.script.ScriptBuilder;
+import one.wangwei.blockchain.util.BtcAddressUtils;
 
 import java.util.Arrays;
 
@@ -26,6 +28,16 @@ public class TXOutput {
      * 公钥Hash
      */
     private byte[] pubKeyHash;
+    /**
+     * p2pkh脚本
+     */
+    private Script p2pkhScript;
+
+    public TXOutput(int value, byte[] pubKeyHash) {
+        this.value = value;
+        this.pubKeyHash = pubKeyHash;
+        this.p2pkhScript = ScriptBuilder.createOutputScript(pubKeyHash);
+    }
 
     /**
      * 创建交易输出
@@ -35,10 +47,9 @@ public class TXOutput {
      * @return
      */
     public static TXOutput newTXOutput(int value, String address) {
-        // 反向转化为 byte 数组
-        byte[] versionedPayload = Base58Check.base58ToBytes(address);
-        byte[] pubKeyHash = Arrays.copyOfRange(versionedPayload, 1, versionedPayload.length);
-        return new TXOutput(value, pubKeyHash);
+        byte[] pubKeyHash = BtcAddressUtils.getRipeMD160Hash(address);
+        Script p2pkhScript = ScriptBuilder.createOutputScript(pubKeyHash);
+        return new TXOutput(value, pubKeyHash, p2pkhScript);
     }
 
     /**

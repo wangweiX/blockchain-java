@@ -88,7 +88,6 @@ public class Wallet implements Serializable {
         return keyPairGenerator.generateKeyPair();
     }
 
-
     /**
      * 获取钱包地址
      *

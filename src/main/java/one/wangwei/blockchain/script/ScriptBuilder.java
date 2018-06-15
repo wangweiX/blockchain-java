@@ -150,30 +150,37 @@ public class ScriptBuilder {
     }
 
     /**
-     * 创建交易输出脚本(P2PKH)
+     * 创建锁定脚本(P2PKH)
      *
      * @return
      */
     public static Script createOutputScript(String address) {
+        return createOutputScript(BtcAddressUtils.getRipeMD160Hash(address));
+    }
+
+    /**
+     * 创建锁定脚本(P2PKH)
+     *
+     * @return
+     */
+    public static Script createOutputScript(byte[] pubkHash) {
         return new ScriptBuilder()
                 .op(OP_DUP)
                 .op(OP_HASH160)
-                .data(BtcAddressUtils.getRipeMD160Hash(address))
+                .data(pubkHash)
                 .op(OP_EQUALVERIFY)
                 .op(OP_CHECKSIG)
                 .build();
     }
 
     /**
-     * 创建交易输入脚本
+     * 创建解锁脚本
      *
      * @return
      */
-    public static Script createInputScript() {
-        // TODO
-        return null;
+    public static Script createInputScript(byte[] sigBytes, byte[] pubKeyBytes) {
+        return new ScriptBuilder().data(sigBytes).data(pubKeyBytes).build();
     }
-
 
 }
 

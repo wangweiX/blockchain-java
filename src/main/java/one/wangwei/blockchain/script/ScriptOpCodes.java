@@ -464,7 +464,6 @@ public class ScriptOpCodes {
     public static final int OP_CHECKMULTISIGVERIFY = 0xaf;
 
     // block state
-
     /**
      * 检查块的锁定时间。 在BIP-65中引入，取代OP_NOP2
      */

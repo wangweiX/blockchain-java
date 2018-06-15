@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import one.wangwei.blockchain.block.Blockchain;
+import one.wangwei.blockchain.script.ScriptBuilder;
 import one.wangwei.blockchain.util.BtcAddressUtils;
 import one.wangwei.blockchain.util.SerializeUtils;
 import one.wangwei.blockchain.wallet.Wallet;
@@ -226,6 +227,8 @@ public class Transaction {
             // 将整个交易数据的签名赋值给交易输入，因为交易输入需要包含整个交易信息的签名
             // 注意是将得到的签名赋值给原交易信息中的交易输入
             this.getInputs()[i].setSignature(signature);
+            this.getInputs()[i].setScriptSig(
+                    ScriptBuilder.createInputScript(signature, prevTxOutput.getPubKeyHash()));
         }
     }
 
