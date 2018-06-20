@@ -18,6 +18,16 @@ public class BtcAddressUtils {
     public static final int LENGTH = 20;
 
     /**
+     * 双重Hash
+     *
+     * @param data
+     * @return
+     */
+    public static byte[] doubleHash(byte[] data) {
+        return DigestUtils.sha256(DigestUtils.sha256(data));
+    }
+
+    /**
      * 计算公钥的 RIPEMD160 Hash值
      *
      * @param pubKey 公钥
@@ -40,9 +50,7 @@ public class BtcAddressUtils {
      * @return
      */
     public static byte[] checksum(byte[] payload) {
-        byte[] firstSHA = DigestUtils.sha256(payload);
-        byte[] secondSHA = DigestUtils.sha256(firstSHA);
-        return Arrays.copyOfRange(secondSHA, 0, 4);
+        return Arrays.copyOfRange(doubleHash(payload), 0, 4);
     }
 
     /**

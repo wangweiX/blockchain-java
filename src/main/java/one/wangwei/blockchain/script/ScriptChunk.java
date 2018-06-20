@@ -32,13 +32,23 @@ public class ScriptChunk {
     }
 
     /**
-     * 判断是否为操作码
+     * 如果该组块是非推送数据内容的单个字节（可能是OP_RESERVED或某些无效的操作码）
      *
      * @return
      */
     public boolean isOpCode() {
         return opcode > OP_PUSHDATA4;
     }
+
+    /**
+     * 如果该组块是pushdata内容（包括单字节pushdatas），则返回true。
+     *
+     * @return
+     */
+    public boolean isPushData() {
+        return opcode <= OP_16;
+    }
+
 
     public void write(OutputStream stream) throws IOException {
         if (isOpCode()) {

@@ -20,21 +20,21 @@ public class ScriptOpCodes {
      * =========================================
      */
     /**
-     * 一个字节空串被压入堆栈中
+     * 一个空字节数组推入堆栈
      **/
     public static final int OP_0 = 0x00;
     public static final int OP_FALSE = OP_0;
 
     /**
-     * 下一个字节包含要推入堆栈的字节数。
+     * 包含了要推入堆栈的字节数的下一个字节
      **/
     public static final int OP_PUSHDATA1 = 0x4c;
     /**
-     * 接下来的两个字节包含按小端顺序推入堆栈的字节数。
+     * 包含了按小端顺序推入堆栈的字节数的下两个字节
      **/
     public static final int OP_PUSHDATA2 = 0x4d;
     /**
-     * 接下来的四个字节包含按小端顺序推入堆栈的字节数。
+     * 包含了按小端顺序推入堆栈的字节数的下四个字节。
      **/
     public static final int OP_PUSHDATA4 = 0x4e;
     /**

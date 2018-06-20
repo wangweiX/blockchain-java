@@ -195,12 +195,15 @@ public class CLI {
             log.error("ERROR: sender address invalid ! address=" + from, e);
             throw new RuntimeException("ERROR: sender address invalid ! address=" + from, e);
         }
-        // 检查钱包地址是否合法
         try {
             Base58Check.base58ToBytes(to);
         } catch (Exception e) {
             log.error("ERROR: receiver address invalid ! address=" + to, e);
             throw new RuntimeException("ERROR: receiver address invalid ! address=" + to, e);
+        }
+        if (from.equalsIgnoreCase(to)) {
+            log.error("ERROR: The receiving address cannot be the same as the sending address ！address=" + to);
+            throw new RuntimeException("ERROR: The receiving address cannot be the same as the sending address ！address=" + to);
         }
         if (amount < 1) {
             log.error("ERROR: amount invalid ! amount=" + amount);

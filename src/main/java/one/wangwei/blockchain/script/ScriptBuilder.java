@@ -94,7 +94,7 @@ public class ScriptBuilder {
     }
 
     /**
-     * 获取 data 数据对应的操作码
+     * 根据数据长度获取对应的操作码
      *
      * @param data
      * @return
@@ -151,6 +151,7 @@ public class ScriptBuilder {
 
     /**
      * 创建锁定脚本(P2PKH)
+     * OP_DUP OP_HASH160 <pubKeyHash> OP_EQUALVERIFY OP_CHECKSIG
      *
      * @return
      */
@@ -160,6 +161,7 @@ public class ScriptBuilder {
 
     /**
      * 创建锁定脚本(P2PKH)
+     * OP_DUP OP_HASH160 <pubKeyHash> OP_EQUALVERIFY OP_CHECKSIG
      *
      * @return
      */

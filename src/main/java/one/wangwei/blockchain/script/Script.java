@@ -3,12 +3,23 @@ package one.wangwei.blockchain.script;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import lombok.Data;
+import one.wangwei.blockchain.exception.ScriptException;
+import one.wangwei.blockchain.transaction.Transaction;
 import one.wangwei.blockchain.util.BtcAddressUtils;
+import org.bouncycastle.jce.ECNamedCurveTable;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.jce.spec.ECParameterSpec;
+import org.bouncycastle.jce.spec.ECPublicKeySpec;
+import org.bouncycastle.math.ec.ECPoint;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.math.BigInteger;
+import java.security.*;
+import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -98,7 +109,7 @@ public class Script {
                 return Arrays.copyOf(program, program.length);
             }
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            for (ScriptChunk chunk : chunks) {
+            for (ScriptChunk chunk: chunks) {
                 chunk.write(bos);
             }
             program = bos.toByteArray();
@@ -119,4 +130,98 @@ public class Script {
         return Joiner.on(" ").join(chunks);
     }
 
+    /**
+     * 执行脚本
+     */
+    public static void executeScript(Script script, LinkedList<byte[]> stack, Transaction tx) {
+        for (ScriptChunk chunk: script.chunks) {
+            int opcode = chunk.getOpcode();
+            if (opcode == OP_0) {
+                stack.add(new byte[0]);
+            } else if (!chunk.isOpCode()) {
+                stack.add(chunk.getData());
+            } else {
+                if (opcode == OP_VERIF || opcode == OP_VERNOTIF) {
+                    throw new ScriptException("Script included OP_VERIF or OP_VERNOTIF");
+                }
+                if (opcode == OP_CAT || opcode == OP_SUBSTR || opcode == OP_LEFT || opcode == OP_RIGHT ||
+                        opcode == OP_INVERT || opcode == OP_AND || opcode == OP_OR || opcode == OP_XOR ||
+                        opcode == OP_2MUL || opcode == OP_2DIV || opcode == OP_MUL || opcode == OP_DIV ||
+                        opcode == OP_MOD || opcode == OP_LSHIFT || opcode == OP_RSHIFT) {
+                    throw new ScriptException("Script included a disabled Script Op.");
+                }
+                switch (opcode) {
+                    case OP_DUP:
+                        if (stack.size() < 1) {
+                            throw new ScriptException("Attempted OP_DUP on an empty stack");
+                        }
+                        stack.add(stack.getLast());
+                        break;
+                    case OP_HASH160:
+                        if (stack.size() < 1) {
+                            throw new ScriptException("Attempted OP_HASH160 on an empty stack");
+                        }
+                        stack.add(BtcAddressUtils.ripeMD160Hash(stack.pollLast()));
+                        break;
+                    case OP_EQUALVERIFY:
+                        if (stack.size() < 2) {
+                            throw new ScriptException("Attempted OP_EQUALVERIFY on a stack with size < 2");
+                        }
+                        if (!Arrays.equals(stack.pollLast(), stack.pollLast())) {
+                            throw new ScriptException("OP_EQUALVERIFY: non-equal data");
+                        }
+                        break;
+                    case OP_CHECKSIG:
+                        checkSig(script, stack, tx);
+                    default:
+                        throw new ScriptException("OP_EQUALVERIFY: non-equal data");
+                }
+            }
+        }
+    }
+
+    /**
+     * 执行校验码验证
+     *
+     * @param script
+     * @param stack
+     * @param tx
+     */
+    private static void checkSig(Script script, LinkedList<byte[]> stack, Transaction tx) {
+        if (stack.size() < 2) {
+            throw new ScriptException("Attempted OP_CHECKSIG(VERIFY) on a stack with size < 2");
+        }
+
+        byte[] pubKey = stack.pollLast();
+        byte[] sigBytes = stack.pollLast();
+
+        try {
+            Security.addProvider(new BouncyCastleProvider());
+            ECParameterSpec ecParameters = ECNamedCurveTable.getParameterSpec("secp256k1");
+            KeyFactory keyFactory = KeyFactory.getInstance("ECDSA", BouncyCastleProvider.PROVIDER_NAME);
+            Signature ecdsaVerify = Signature.getInstance("SHA256withECDSA", BouncyCastleProvider.PROVIDER_NAME);
+            BigInteger x = new BigInteger(1, Arrays.copyOfRange(pubKey, 1, 33));
+            BigInteger y = new BigInteger(1, Arrays.copyOfRange(pubKey, 33, 65));
+            ECPoint ecPoint = ecParameters.getCurve().createPoint(x, y);
+
+            ECPublicKeySpec keySpec = new ECPublicKeySpec(ecPoint, ecParameters);
+            PublicKey publicKey = keyFactory.generatePublic(keySpec);
+            ecdsaVerify.initVerify(publicKey);
+            ecdsaVerify.update(tx.getTxId());
+            if (!ecdsaVerify.verify(sigBytes)) {
+                throw new ScriptException("OP_EQUALVERIFY: non-equal data");
+            }
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (NoSuchProviderException e) {
+            e.printStackTrace();
+        } catch (InvalidKeySpecException e) {
+            e.printStackTrace();
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+        } catch (SignatureException e) {
+            e.printStackTrace();
+        }
+    }
 }
+

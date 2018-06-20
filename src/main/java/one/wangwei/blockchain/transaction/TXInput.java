@@ -58,4 +58,11 @@ public class TXInput {
         return Arrays.equals(lockingHash, pubKeyHash);
     }
 
+    /**
+     * 验证交易输入是否能够花费指定的交易输出
+     */
+    public static void verify(TXOutput output) {
+        // TODO
+    }
+
 }

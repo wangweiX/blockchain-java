@@ -59,7 +59,7 @@ public final class Base58Check {
      */
     static byte[] addCheckHash(byte[] data) {
         try {
-            byte[] hash = Arrays.copyOf(Sha256.getDoubleHash(data).toBytes(), 4);
+            byte[] hash = Arrays.copyOf(BtcAddressUtils.doubleHash(data), 4);
             ByteArrayOutputStream buf = new ByteArrayOutputStream();
             buf.write(data);
             buf.write(hash);
@@ -81,7 +81,7 @@ public final class Base58Check {
         byte[] concat = base58ToRawBytes(s);
         byte[] data = Arrays.copyOf(concat, concat.length - 4);
         byte[] hash = Arrays.copyOfRange(concat, concat.length - 4, concat.length);
-        byte[] rehash = Arrays.copyOf(Sha256.getDoubleHash(data).toBytes(), 4);
+        byte[] rehash = Arrays.copyOf(BtcAddressUtils.doubleHash(data), 4);
         if (!Arrays.equals(rehash, hash)) {
             throw new IllegalArgumentException("Checksum mismatch");
         }
