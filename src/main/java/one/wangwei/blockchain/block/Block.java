@@ -8,7 +8,7 @@ import one.wangwei.blockchain.pow.PowResult;
 import one.wangwei.blockchain.pow.ProofOfWork;
 import one.wangwei.blockchain.transaction.MerkleTree;
 import one.wangwei.blockchain.transaction.Transaction;
-import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.codec.binary.Hex;
 
 import java.time.Instant;
 
@@ -23,6 +23,8 @@ import java.time.Instant;
 @NoArgsConstructor
 @ToString
 public class Block {
+
+    private static final String ZERO_HASH = Hex.encodeHexString(new byte[32]);
 
     /**
      * 区块hash值
@@ -46,8 +48,6 @@ public class Block {
     private long nonce;
 
 
-    private static final String ZERO_HASH = DigestUtils.sha256Hex(new byte[32]);
-
     /**
      * <p> 创建创世区块 </p>
      *
@@ -66,7 +66,7 @@ public class Block {
      * @return
      */
     public static Block newBlock(String previousHash, Transaction[] transactions) {
-        Block block = new Block(ZERO_HASH, previousHash, transactions, Instant.now().getEpochSecond(), 0);
+        Block block = new Block("", previousHash, transactions, Instant.now().getEpochSecond(), 0);
         ProofOfWork pow = ProofOfWork.newProofOfWork(block);
         PowResult powResult = pow.run();
         block.setHash(powResult.getHash());
