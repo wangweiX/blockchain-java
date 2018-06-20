@@ -1,8 +1,11 @@
 package one.wangwei.blockchain.block;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import one.wangwei.blockchain.pow.PowResult;
 import one.wangwei.blockchain.pow.ProofOfWork;
+import org.apache.commons.codec.binary.Hex;
 
 import java.time.Instant;
 
@@ -13,7 +16,11 @@ import java.time.Instant;
  * @date 2018/02/02
  */
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class Block {
+
+    private static final String ZERO_HASH = Hex.encodeHexString(new byte[32]);
 
     /**
      * 区块hash值
@@ -36,25 +43,13 @@ public class Block {
      */
     private long nonce;
 
-    public Block() {
-    }
-
-    public Block(String hash, String prevBlockHash, String data, long timeStamp, long nonce) {
-        this();
-        this.hash = hash;
-        this.prevBlockHash = prevBlockHash;
-        this.data = data;
-        this.timeStamp = timeStamp;
-        this.nonce = nonce;
-    }
-
     /**
      * <p> 创建创世区块 </p>
      *
      * @return
      */
     public static Block newGenesisBlock() {
-        return Block.newBlock("", "Genesis Block");
+        return Block.newBlock(ZERO_HASH, "Genesis Block");
     }
 
     /**

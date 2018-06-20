@@ -1,6 +1,8 @@
 package one.wangwei.blockchain.block;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -11,14 +13,12 @@ import java.util.List;
  * @author wangwei
  * @date 2018/02/02
  */
+@AllArgsConstructor
+@NoArgsConstructor
 public class Blockchain {
 
     @Getter
     private List<Block> blockList;
-
-    private Blockchain(List<Block> blockList) {
-        this.blockList = blockList;
-    }
 
     /**
      * <p> 创建区块链 </p>
