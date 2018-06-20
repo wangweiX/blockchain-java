@@ -8,6 +8,7 @@ import one.wangwei.blockchain.pow.PowResult;
 import one.wangwei.blockchain.pow.ProofOfWork;
 import one.wangwei.blockchain.transaction.MerkleTree;
 import one.wangwei.blockchain.transaction.Transaction;
+import org.apache.commons.codec.binary.Hex;
 
 import java.time.Instant;
 
@@ -22,6 +23,8 @@ import java.time.Instant;
 @NoArgsConstructor
 @ToString
 public class Block {
+
+    private static final String ZERO_HASH = Hex.encodeHexString(new byte[32]);
 
     /**
      * 区块hash值
@@ -52,7 +55,7 @@ public class Block {
      * @return
      */
     public static Block newGenesisBlock(Transaction coinbase) {
-        return Block.newBlock("", new Transaction[]{coinbase});
+        return Block.newBlock(ZERO_HASH, new Transaction[]{coinbase});
     }
 
     /**
