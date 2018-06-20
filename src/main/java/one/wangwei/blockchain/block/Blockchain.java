@@ -1,6 +1,8 @@
 package one.wangwei.blockchain.block;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import one.wangwei.blockchain.store.RocksDBUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -10,14 +12,12 @@ import org.apache.commons.lang3.StringUtils;
  * @author wangwei
  * @date 2018/02/02
  */
+@AllArgsConstructor
+@NoArgsConstructor
 public class Blockchain {
 
     @Getter
     private String lastBlockHash;
-
-    private Blockchain(String lastBlockHash) {
-        this.lastBlockHash = lastBlockHash;
-    }
 
     /**
      * <p> 创建区块链 </p>
