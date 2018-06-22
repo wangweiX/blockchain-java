@@ -45,7 +45,7 @@ public class ProofOfWork {
      * @return
      */
     public static ProofOfWork newProofOfWork(Block block) {
-        BigInteger targetValue = BigInteger.valueOf(1).shiftLeft((256 - TARGET_BITS));
+        BigInteger targetValue = BigInteger.ONE.shiftLeft((256 - TARGET_BITS));
         return new ProofOfWork(block, targetValue);
     }
 
