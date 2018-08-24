@@ -11,6 +11,16 @@ import org.bouncycastle.util.Arrays;
  * @date 2018/03/21
  */
 public class BtcAddressUtils {
+    
+    /**
+     * 双重Hash
+     *
+     * @param data
+     * @return
+     */
+    public static byte[] doubleHash(byte[] data) {
+        return DigestUtils.sha256(DigestUtils.sha256(data));
+    }
 
     /**
      * 计算公钥的 RIPEMD160 Hash值
@@ -28,7 +38,6 @@ public class BtcAddressUtils {
         return output;
     }
 
-
     /**
      * 生成公钥的校验码
      *
@@ -36,8 +45,7 @@ public class BtcAddressUtils {
      * @return
      */
     public static byte[] checksum(byte[] payload) {
-        byte[] firstSHA = DigestUtils.sha256(payload);
-        byte[] secondSHA = DigestUtils.sha256(firstSHA);
-        return Arrays.copyOfRange(secondSHA, 0, 4);
+        return Arrays.copyOfRange(doubleHash(payload), 0, 4);
     }
+
 }
