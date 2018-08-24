@@ -8,6 +8,7 @@ import one.wangwei.blockchain.pow.PowResult;
 import one.wangwei.blockchain.pow.ProofOfWork;
 import one.wangwei.blockchain.transaction.MerkleTree;
 import one.wangwei.blockchain.transaction.Transaction;
+import one.wangwei.blockchain.util.ByteUtils;
 
 import java.time.Instant;
 
@@ -55,7 +56,7 @@ public class Block {
      * @return
      */
     public static Block newGenesisBlock(Transaction coinbase) {
-        return Block.newBlock("", new Transaction[]{coinbase}, 0);
+        return Block.newBlock(ByteUtils.ZERO_HASH, new Transaction[]{coinbase}, 0);
     }
 
     /**
