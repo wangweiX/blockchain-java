@@ -115,7 +115,7 @@ public class Blockchain {
          *
          * @return
          */
-        public boolean hashNext() throws Exception {
+        public boolean hashNext() {
             if (ByteUtils.ZERO_HASH.equals(currentBlockHash)) {
                 return false;
             }
@@ -136,7 +136,7 @@ public class Blockchain {
          *
          * @return
          */
-        public Block next() throws Exception {
+        public Block next() {
             Block currentBlock = RocksDBUtils.getInstance().getBlock(currentBlockHash);
             if (currentBlock != null) {
                 this.currentBlockHash = currentBlock.getPrevBlockHash();
