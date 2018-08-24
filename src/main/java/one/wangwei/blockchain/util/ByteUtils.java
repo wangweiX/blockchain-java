@@ -29,7 +29,7 @@ public class ByteUtils {
      */
     public static byte[] merge(byte[]... bytes) {
         Stream<Byte> stream = Stream.of();
-        for (byte[] b: bytes) {
+        for (byte[] b : bytes) {
             stream = Stream.concat(stream, Arrays.stream(ArrayUtils.toObject(b)));
         }
         return ArrayUtils.toPrimitive(stream.toArray(Byte[]::new));
