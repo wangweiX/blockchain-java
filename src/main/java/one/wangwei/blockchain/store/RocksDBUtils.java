@@ -190,6 +190,21 @@ public class RocksDBUtils {
     }
 
     /**
+     * 一次性放入所有UTXO数据
+     *
+     * @param utxoDatas
+     */
+    public void initAllUTXOs(Map<String, byte[]> utxoDatas) {
+        try {
+            chainstateBucket.putAll(utxoDatas);
+            db.put(SerializeUtils.serialize(CHAINSTATE_BUCKET_KEY), SerializeUtils.serialize(chainstateBucket));
+        } catch (RocksDBException e) {
+            log.error("Fail to init all UTXOs data into chainstate bucket ! ", e);
+            throw new RuntimeException("Fail to init all UTXOs data into chainstate bucket ! ", e);
+        }
+    }
+
+    /**
      * 保存UTXO数据
      *
      * @param key   交易ID
@@ -204,7 +219,6 @@ public class RocksDBUtils {
             throw new RuntimeException("Fail to put UTXOs into chainstate bucket ! key=" + key, e);
         }
     }
-
 
     /**
      * 查询UTXO数据

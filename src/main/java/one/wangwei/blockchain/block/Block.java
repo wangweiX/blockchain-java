@@ -44,7 +44,6 @@ public class Block {
      */
     private long nonce;
 
-
     /**
      * <p> 创建创世区块 </p>
      *
