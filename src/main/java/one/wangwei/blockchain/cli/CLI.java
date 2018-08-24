@@ -131,7 +131,7 @@ public class CLI {
      *
      * @throws Exception
      */
-    private void createWallet() throws Exception {
+    private void createWallet() {
         Wallet wallet = WalletUtils.getInstance().createWallet();
         log.info("wallet address : " + wallet.getAddress());
     }

@@ -11,16 +11,17 @@ import one.wangwei.blockchain.cli.CLI;
 public class BlockchainTest {
 
     public static void main(String[] args) {
-        // 1B9eFkAq3BoeRbinryDUFaHsTAEjxzBP4S
-        // 1Hj3SiVsDu4rqQux8yS1zTiA9uCKyvqp4
-        // 138gSV2EckNufLjEjLEUBJxiF6UDx46KaL
+        // 1BjZzivUJzGRt6VqNkX8vZ3DVbVwLwETpR
+        // 1NPeKwxHehoWK1SY6LqHxgVYsB7Ud65BkP
+        // 1MtTNQE9t17csqMKWS6TWbweBWdGj2FgyQ
         try {
 //            String[] argss = {"createwallet"};
-//            String[] argss = {"createblockchain", "-address", "1B9eFkAq3BoeRbinryDUFaHsTAEjxzBP4S"};
+//            String[] argss = {"createblockchain", "-address", "1BjZzivUJzGRt6VqNkX8vZ3DVbVwLwETpR"};
 //            String[] argss = {"printaddresses"};
-            String[] argss = {"printchain"};
 //            String[] argss = {"getbalance", "-address", "1B9eFkAq3BoeRbinryDUFaHsTAEjxzBP4S"};
-//            String[] argss = {"send", "-from", "1B9eFkAq3BoeRbinryDUFaHsTAEjxzBP4S", "-to", "138gSV2EckNufLjEjLEUBJxiF6UDx46KaL", "-amount", "1"};
+//            String[] argss = {"send", "-from", "1BjZzivUJzGRt6VqNkX8vZ3DVbVwLwETpR", "-to", "1NPeKwxHehoWK1SY6LqHxgVYsB7Ud65BkP", "-amount", "1"};
+            String[] argss = {"printchain"};
+//
             CLI cli = new CLI(argss);
             cli.parse();
         } catch (Exception e) {
