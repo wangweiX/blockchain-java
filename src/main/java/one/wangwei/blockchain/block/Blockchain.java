@@ -3,11 +3,12 @@ package one.wangwei.blockchain.block;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import one.wangwei.blockchain.store.RocksDBUtils;
 import one.wangwei.blockchain.transaction.SpendableOutputResult;
 import one.wangwei.blockchain.transaction.TXInput;
 import one.wangwei.blockchain.transaction.TXOutput;
 import one.wangwei.blockchain.transaction.Transaction;
-import one.wangwei.blockchain.store.RocksDBUtils;
+import one.wangwei.blockchain.util.ByteUtils;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -115,7 +116,7 @@ public class Blockchain {
          * @return
          */
         public boolean hashNext() throws Exception {
-            if (StringUtils.isBlank(currentBlockHash)) {
+            if (ByteUtils.ZERO_HASH.equals(currentBlockHash)) {
                 return false;
             }
             Block lastBlock = RocksDBUtils.getInstance().getBlock(currentBlockHash);
@@ -123,7 +124,7 @@ public class Blockchain {
                 return false;
             }
             // 创世区块直接放行
-            if (lastBlock.getPrevBlockHash().length() == 0) {
+            if (ByteUtils.ZERO_HASH.equals(lastBlock.getPrevBlockHash())) {
                 return true;
             }
             return RocksDBUtils.getInstance().getBlock(lastBlock.getPrevBlockHash()) != null;
