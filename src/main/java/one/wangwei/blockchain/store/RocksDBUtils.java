@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import one.wangwei.blockchain.block.Block;
 import one.wangwei.blockchain.transaction.TXOutput;
 import one.wangwei.blockchain.util.SerializeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.rocksdb.RocksDB;
 import org.rocksdb.RocksDBException;
 
@@ -176,6 +177,22 @@ public class RocksDBUtils {
         throw new RuntimeException("Fail to get block ! blockHash=" + blockHash);
     }
 
+    /**
+     * 获取最新一个区块
+     *
+     * @return
+     */
+    public Block getLastBlock() {
+        String lastBlockHash = getLastBlockHash();
+        if (StringUtils.isBlank(lastBlockHash)) {
+            throw new RuntimeException("ERROR: Fail to get last block hash ! ");
+        }
+        Block lastBlock = getBlock(lastBlockHash);
+        if (lastBlock == null) {
+            throw new RuntimeException("ERROR: Fail to get last block ! ");
+        }
+        return lastBlock;
+    }
 
     /**
      * 清空chainstate bucket

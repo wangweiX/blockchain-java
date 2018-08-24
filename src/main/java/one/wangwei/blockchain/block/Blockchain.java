@@ -78,12 +78,8 @@ public class Blockchain {
                 throw new RuntimeException("ERROR: Fail to mine block ! Invalid transaction ! ");
             }
         }
-        String lastBlockHash = RocksDBUtils.getInstance().getLastBlockHash();
-        if (lastBlockHash == null) {
-            throw new RuntimeException("ERROR: Fail to get last block hash ! ");
-        }
-
-        Block block = Block.newBlock(lastBlockHash, transactions);
+        Block lastBlock = RocksDBUtils.getInstance().getLastBlock();
+        Block block = Block.newBlock(lastBlockHash, transactions, lastBlock.getHeight() + 1);
         this.addBlock(block);
         return block;
     }

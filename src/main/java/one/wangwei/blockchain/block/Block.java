@@ -43,6 +43,10 @@ public class Block {
      * 工作量证明计数器
      */
     private long nonce;
+    /**
+     * 区块高度
+     */
+    private int height;
 
     /**
      * <p> 创建创世区块 </p>
@@ -51,7 +55,7 @@ public class Block {
      * @return
      */
     public static Block newGenesisBlock(Transaction coinbase) {
-        return Block.newBlock("", new Transaction[]{coinbase});
+        return Block.newBlock("", new Transaction[]{coinbase}, 0);
     }
 
     /**
@@ -61,8 +65,8 @@ public class Block {
      * @param transactions
      * @return
      */
-    public static Block newBlock(String previousHash, Transaction[] transactions) {
-        Block block = new Block("", previousHash, transactions, Instant.now().getEpochSecond(), 0);
+    public static Block newBlock(String previousHash, Transaction[] transactions, int height) {
+        Block block = new Block("", previousHash, transactions, Instant.now().getEpochSecond(), 0, height);
         ProofOfWork pow = ProofOfWork.newProofOfWork(block);
         PowResult powResult = pow.run();
         block.setHash(powResult.getHash());

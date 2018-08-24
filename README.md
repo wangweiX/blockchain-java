@@ -19,7 +19,6 @@
 - [地址 - 钱包](https://wangwei.one/posts/f9088e0f.html)
 - [交易 - Merkle Tree](https://wangwei.one/posts/630e7ae5.html)
 
-
 ### 反馈&提示
 - 由于本人水平有限，若代码或文章存在错误或不足，还望指正；
 - 如若[博客](https://wangwei.one/)网站无法打开，请开启翻墙代理全局模式；
