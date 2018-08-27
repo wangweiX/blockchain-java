@@ -57,7 +57,6 @@ public class NormalSocket implements SocketInterface {
         this(new Socket(host, port));
     }
 
-
     /**
      * Encapsulates a normal Java API Socket object.
      *
@@ -70,9 +69,6 @@ public class NormalSocket implements SocketInterface {
         os = s.getOutputStream();
     }
 
-    /* (non-Javadoc)
-     * @see peerbase.SocketInterface#close()
-     */
     @Override
     public void close() throws IOException {
         is.close();
@@ -80,25 +76,16 @@ public class NormalSocket implements SocketInterface {
         s.close();
     }
 
-    /* (non-Javadoc)
-     * @see peerbase.SocketInterface#read()
-     */
     @Override
     public int read() throws IOException {
         return is.read();
     }
 
-    /* (non-Javadoc)
-     * @see peerbase.SocketInterface#read(byte[])
-     */
     @Override
     public int read(byte[] b) throws IOException {
         return is.read(b);
     }
 
-    /* (non-Javadoc)
-     * @see peerbase.SocketInterface#write(byte[])
-     */
     @Override
     public void write(byte[] b) throws IOException {
         os.write(b);

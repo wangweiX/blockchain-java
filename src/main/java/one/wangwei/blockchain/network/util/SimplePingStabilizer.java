@@ -28,8 +28,10 @@ package one.wangwei.blockchain.network.util;
 
 import one.wangwei.blockchain.network.Node;
 import one.wangwei.blockchain.network.PeerConnection;
-import one.wangwei.blockchain.network.PeerMessage;
 import one.wangwei.blockchain.network.StabilizerInterface;
+import one.wangwei.blockchain.network.message.MessageTypEnum;
+import one.wangwei.blockchain.network.message.PeerMessage;
+import one.wangwei.blockchain.network.message.data.StringMessageData;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -45,36 +47,37 @@ import java.util.List;
  * @author Nadeem Abdul Hamid
  */
 public class SimplePingStabilizer implements StabilizerInterface {
+
     private Node peer;
-    private String msgtype;
+    private MessageTypEnum msgType;
 
     public SimplePingStabilizer(Node peer) {
-        this(peer, "PING");
+        this(peer, MessageTypEnum.PING);
     }
 
-    public SimplePingStabilizer(Node peer, String msgtype) {
+    public SimplePingStabilizer(Node peer, MessageTypEnum msgType) {
         this.peer = peer;
-        this.msgtype = msgtype;
+        this.msgType = msgType;
     }
 
     @Override
     public void stabilizer() {
-        List<String> todelete = new ArrayList<String>();
+        List<String> toDelete = new ArrayList<>();
         for (String pid : peer.getPeerKeys()) {
             boolean isconn = false;
             PeerConnection peerconn = null;
             try {
                 peerconn = new PeerConnection(peer.getPeer(pid));
-                peerconn.sendData(new PeerMessage(msgtype, ""));
+                peerconn.sendData(new PeerMessage(msgType, new StringMessageData("")));
                 isconn = true;
             } catch (IOException e) {
-                todelete.add(pid);
+                toDelete.add(pid);
             }
-            if (isconn)
+            if (isconn) {
                 peerconn.close();
+            }
         }
-
-        for (String pid : todelete) {
+        for (String pid : toDelete) {
             peer.removePeer(pid);
         }
     }

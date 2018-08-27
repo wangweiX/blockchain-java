@@ -28,12 +28,11 @@ package one.wangwei.blockchain.network.socket;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
 public class NormalSocketFactory extends AbstractSocketFactory {
 
     @Override
-    public SocketInterface makeSocket(String host, int port) throws IOException, UnknownHostException {
+    public SocketInterface makeSocket(String host, int port) throws IOException {
         return new NormalSocket(host, port);
     }
 

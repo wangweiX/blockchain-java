@@ -1,32 +1,9 @@
-/*
-	File: PeerConnection.java
-	Copyright 2007 by Nadeem Abdul Hamid
-
-	Permission to use, copy, modify, and distribute this software and its
-	documentation for any purpose and without fee is hereby granted, provided
-	that the above copyright notice appear in all copies and that both the
-	copyright notice and this permission notice and warranty disclaimer appear
-	in supporting documentation, and that the names of the authors or their
-	employers not be used in advertising or publicity pertaining to distri-
-	bution of the software without specific, written prior permission.
-
-	The authors and their employers disclaim all warranties with regard to
-	this software, including all implied warranties of merchantability and
-	fitness. In no event shall the authors or their employers be liable for
-	any special, indirect or consequential damages or any damages whatsoever
-	resulting from loss of use, data or profits, whether in an action of
-	contract, negligence or other tortious action, arising out of or in
-	connection with the use or performance of this software, even if
-	advised of the possibility of such damage.
-
-	Date		Author				Changes
-	Jan 29 2007	Nadeem Abdul Hamid	Created
- */
 package one.wangwei.blockchain.network;
 
-
+import one.wangwei.blockchain.network.message.PeerMessage;
 import one.wangwei.blockchain.network.socket.AbstractSocketFactory;
 import one.wangwei.blockchain.network.socket.SocketInterface;
+import one.wangwei.blockchain.util.LoggerUtil;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
@@ -50,13 +27,10 @@ public class PeerConnection {
      * @throws IOException          if an I/O error occurs
      * @throws UnknownHostException
      */
-    public PeerConnection(PeerInfo info)
-            throws IOException, UnknownHostException {
+    public PeerConnection(PeerInfo info) throws IOException, UnknownHostException {
         pd = info;
-        s = AbstractSocketFactory.getSocketFactory().makeSocket(pd.getHost(),
-                pd.getPort());
+        s = AbstractSocketFactory.getSocketFactory().makeSocket(pd.getHost(), pd.getPort());
     }
-
 
     /**
      * Constructs a connection for which a socket has already been
@@ -84,19 +58,15 @@ public class PeerConnection {
         }
     }
 
-
     /**
-     * Receives a PeerMessage from the connected peer.
+     * 从相连的Peer节点接收返回数据
      *
-     * @return the message object received, or null if error
+     * @return
      */
     public PeerMessage recvData() {
         try {
-            PeerMessage msg = new PeerMessage(s);
-            return msg;
+            return new PeerMessage(s);
         } catch (IOException e) {
-            // it is normal for EOF to occur if there is no more replies coming
-            // back from this connection.
             if (!e.getMessage().equals("EOF in PeerMessage constructor: type"))
                 LoggerUtil.getLogger().warning("Error receiving message: " + e);
             else
@@ -105,9 +75,8 @@ public class PeerConnection {
         }
     }
 
-
     /**
-     * Closes the peer connection.
+     * 关闭socket连接
      */
     public void close() {
         if (s != null) {
@@ -120,12 +89,11 @@ public class PeerConnection {
         }
     }
 
-
     public PeerInfo getPeerInfo() {
         return pd;
     }
 
-
+    @Override
     public String toString() {
         return "PeerConnection[" + pd + "]";
     }

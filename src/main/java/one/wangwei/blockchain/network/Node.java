@@ -1,32 +1,17 @@
-/*
-	File: Node.java
-	Copyright 2007 by Nadeem Abdul Hamid
-
-	Permission to use, copy, modify, and distribute this software and its
-	documentation for any purpose and without fee is hereby granted, provided
-	that the above copyright notice appear in all copies and that both the
-	copyright notice and this permission notice and warranty disclaimer appear
-	in supporting documentation, and that the names of the authors or their
-	employers not be used in advertising or publicity pertaining to distri-
-	bution of the software without specific, written prior permission.
-
-	The authors and their employers disclaim all warranties with regard to
-	this software, including all implied warranties of merchantability and
-	fitness. In no event shall the authors or their employers be liable for
-	any special, indirect or consequential damages or any damages whatsoever
-	resulting from loss of use, data or profits, whether in an action of
-	contract, negligence or other tortious action, arising out of or in
-	connection with the use or performance of this software, even if
-	advised of the possibility of such damage.
-
-	Date		Author				Changes
-	Jan 31 2007	Nadeem Abdul Hamid	Created
- */
 package one.wangwei.blockchain.network;
 
-
+import lombok.Data;
+import one.wangwei.blockchain.block.Blockchain;
+import one.wangwei.blockchain.network.message.MessageTypEnum;
+import one.wangwei.blockchain.network.message.PeerMessage;
+import one.wangwei.blockchain.network.message.data.BaseMessageData;
+import one.wangwei.blockchain.network.message.handle.HandlerInterface;
 import one.wangwei.blockchain.network.socket.AbstractSocketFactory;
 import one.wangwei.blockchain.network.socket.SocketInterface;
+import one.wangwei.blockchain.util.LoggerUtil;
+import one.wangwei.blockchain.wallet.Wallet;
+import one.wangwei.blockchain.wallet.WalletUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.net.*;
@@ -36,22 +21,16 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * This is the primary class for the PeerBase peer-to-peer development system.
- * It maintains this node's information (id, host, port), a list of known peers,
- * list of message handlers, and a handler for routing data through the
- * P2P network.
+ * P2P网络节点
  *
- * @author Nadeem Abdul Hamid
+ * @author wangwei
+ * @date 2018/08/27
  */
+@Data
 public class Node {
 
-    //********************************************************************
-    // INNER CLASSES
-    //
-
-    /*
-     *  This class is used to respond to and handle incoming connections
-     * in a separate thread.
+    /**
+     * This class is used to respond to and handle incoming connections in a separate thread.
      */
     private class PeerHandler extends Thread {
         private SocketInterface s;
@@ -63,30 +42,28 @@ public class Node {
         @Override
         public void run() {
             LoggerUtil.getLogger().fine("New PeerHandler: " + s);
+            PeerConnection peerConn = new PeerConnection(null, s);
+            PeerMessage peerMsg = peerConn.recvData();
 
-            PeerConnection peerconn = new PeerConnection(null, s);
-            PeerMessage peermsg = peerconn.recvData();
-            if (!handlers.containsKey(peermsg.getMsgType())) {
-                LoggerUtil.getLogger().fine("Not handled: " + peermsg);
+            if (!handlers.containsKey(peerMsg.getMsgType())) {
+                LoggerUtil.getLogger().fine("Not handled: " + peerMsg);
             } else {
-                LoggerUtil.getLogger().finer("Handling: " + peermsg);
-                handlers.get(peermsg.getMsgType()).handleMessage(peerconn, peermsg);
+                LoggerUtil.getLogger().finer("Handling: " + peerMsg);
+                handlers.get(peerMsg.getMsgType()).handleMessage(peerConn, peerMsg, blockchain);
             }
-            LoggerUtil.getLogger().fine("Disconnecting incoming: " + peerconn);
+            LoggerUtil.getLogger().fine("Disconnecting incoming: " + peerConn);
             // NOTE: log message should indicate null peerconn host
-
-            peerconn.close();
+            peerConn.close();
         }
     }
 
-
-    /*
-     * This class is used to set up "stabilizer" functions to run at
-     * specified intervals
+    /**
+     * This class is used to set up "stabilizer" functions to run at specified intervals
      */
     private class StabilizerRunner extends Thread {
         private StabilizerInterface st;
-        private int delay;   // milliseconds
+        // milliseconds
+        private int delay;
 
         public StabilizerRunner(StabilizerInterface st, int delay) {
             this.st = st;
@@ -106,62 +83,72 @@ public class Node {
         }
     }
 
-
-    //********************************************************************
-    // PEERNODE CLASS MEMBERS
-    //
-
-    private static final int SOCKETTIMEOUT = 2000; // milliseconds
-
+    /**
+     * socket 超时时间
+     */
+    private static final int SOCKETTIMEOUT = 2000;
+    /**
+     * 节点信息
+     */
     private PeerInfo myInfo;
-
-    private int maxPeers;  // maximum size of peers list; 0 means unlimited
+    /**
+     * peer 数量限制。 0: 表示无限制
+     */
+    private int maxPeers;
+    /**
+     * 本地维护的节点列表
+     */
     private Hashtable<String, PeerInfo> peers;
 
     private Hashtable<String, HandlerInterface> handlers;
     private RouterInterface router;
 
-    private boolean shutdown;  // node is in shutdown mode?
-
-
     /**
-     * Initialize this node with the given info and the specified
-     * limit on the size of the peer list.
-     *
-     * @param maxPeers the maximum size of the peer list (0 means 'no limit')
-     * @param info     the id and host/port information for this node
+     * node 模式
      */
-    public Node(int maxPeers, PeerInfo info) {
+    private boolean shutdown;
 
-        if (info.getHost() == null)
+    private Blockchain blockchain;
+
+    public Node(int maxPeers, PeerInfo info, String btcAddress) {
+        if (StringUtils.isBlank(btcAddress)) {
+            Wallet wallet = WalletUtils.getInstance().createWallet();
+            btcAddress = wallet.getAddress();
+        }
+
+        Blockchain blockchain = Blockchain.createBlockchain(btcAddress);
+
+        if (info.getHost() == null) {
             info.setHost(getHostname());
-        if (info.getId() == null)
+        }
+        if (info.getId() == null) {
             info.setId(info.getHost() + ":" + info.getPort());
+        }
 
         this.myInfo = info;
         this.maxPeers = maxPeers;
 
-        this.peers = new Hashtable<String, PeerInfo>();
-        this.handlers = new Hashtable<String, HandlerInterface>();
+        this.peers = new Hashtable<>();
+        this.handlers = new Hashtable<>();
         this.router = null;
 
         this.shutdown = false;
+
+        this.blockchain = blockchain;
     }
 
+    public Node(int maxPeers, PeerInfo info) {
+        this(maxPeers, info, "");
+    }
 
-    /**
-     * Initialize this node with no limit on the size of the peer
-     * list and set up to listen for incoming connections on
-     * the specified port.
-     */
     public Node(int port) {
         this(0, new PeerInfo(port));
     }
 
-
-    /*
-     * Attempt to determine the name or IP address of the machine
-     * this node is running on.
+    /**
+     * 获取本地hostname
+     *
+     * @return
      */
     private String getHostname() {
         String host = "";
@@ -173,101 +160,89 @@ public class Node {
         } catch (IOException e) {
             LoggerUtil.getLogger().warning(e.toString());
         }
-
         LoggerUtil.getLogger().config("Determined host: " + host);
         return host;
     }
 
-
     /**
-     * Create a socket to listen for incoming connections.
+     * 创建 server socket,并监听端口port
      *
-     * @param port the port number to listen on, or 0 to use any free port
-     * @return the server socket
-     * @throws IOException if error occurs
+     * @param port 端口号（0 则自动分配端口）
+     * @return
+     * @throws IOException
      */
     public ServerSocket makeServerSocket(int port) throws IOException {
         return makeServerSocket(port, 5);
     }
 
-
     /**
-     * Create a socket to listen for incoming connections.
+     * 创建 server socket,并监听端口port
      *
-     * @param port    the port number to listen on, or 0 to use any free port
-     * @param backlog he maximum length of the queue
-     * @return the server socket
-     * @throws IOException if error occurs
+     * @param port    端口号（0 则自动分配端口）
+     * @param backlog 请求队列的最大长度
+     * @return
+     * @throws IOException
      */
-    public ServerSocket makeServerSocket(int port, int backlog)
-            throws IOException {
+    public ServerSocket makeServerSocket(int port, int backlog) throws IOException {
         ServerSocket s = new ServerSocket(port, backlog);
         s.setReuseAddress(true);
         return s;
     }
 
-
     /**
-     * Attempts to route and send a message to the specified peer, optionally waiting
-     * and returning any replies. This method using the Node's routing function
-     * to decide the next immediate peer to actually send the message to, based on
-     * the peer identifier of the final destination. If no router function (object)
-     * has been registered, it will not work.
+     * 通过路由的方法，发送消息到指定的节点
      *
-     * @param peerid    the destination peer identifier
-     * @param msgtype   the type of the message being send
-     * @param msgdata   the message data
-     * @param waitreply whether to wait for reply(ies)
-     * @return list of replies (may be empty if error occurred)
+     * @param peerId
+     * @param msgType
+     * @param msgData
+     * @param waitReply
+     * @param <T>
+     * @return
      */
-    public List<PeerMessage> sendToPeer(String peerid, String msgtype,
-                                        String msgdata, boolean waitreply) {
+    public <T extends BaseMessageData> List<PeerMessage> sendToPeer(String peerId, MessageTypEnum msgType,
+                                                                    T msgData, boolean waitReply) {
         PeerInfo pd = null;
-        if (router != null)
-            pd = router.route(peerid);
+        if (router != null) {
+            pd = router.route(peerId);
+        }
         if (pd == null) {
-            LoggerUtil.getLogger().severe(
-                    String.format("Unable to route %s to %s", msgtype, peerid));
+            LoggerUtil.getLogger().severe(String.format("Unable to route %s to %s", msgType, peerId));
             return new ArrayList<>();
         }
-
-        return connectAndSend(pd, msgtype, msgdata, waitreply);
+        return connectAndSend(pd, msgType, msgData, waitReply);
     }
 
-
     /**
-     * Connects to the specified peer and sends a message, optionally waiting
-     * and returning any replies.
+     * 连接节点并发送消息
      *
-     * @param pd        the peer information
-     * @param msgtype   the type of the message being send
-     * @param msgdata   the message data
-     * @param waitreply whether to wait for reply(ies)
-     * @return list of replies (may be empty if error occurred)
+     * @param peerInfo  节点信息
+     * @param msgType   消息类型
+     * @param msgData   消息数据
+     * @param waitReply 是否等待
+     * @param <T>
+     * @return
      */
-    public List<PeerMessage> connectAndSend(PeerInfo pd, String msgtype,
-                                            String msgdata, boolean waitreply) {
-        List<PeerMessage> msgreply = new ArrayList<>();
+    public <T extends BaseMessageData> List<PeerMessage> connectAndSend(PeerInfo peerInfo, MessageTypEnum msgType,
+                                                                        T msgData, boolean waitReply) {
+        List<PeerMessage> msgReply = new ArrayList<>();
         try {
-            PeerConnection peerconn = new PeerConnection(pd);
-            PeerMessage tosend = new PeerMessage(msgtype, msgdata);
-            peerconn.sendData(tosend);
-            LoggerUtil.getLogger().fine("Sent " + tosend + "/" + peerconn);
+            PeerConnection peerConn = new PeerConnection(peerInfo);
+            PeerMessage toSend = new PeerMessage(msgType, msgData);
+            peerConn.sendData(toSend);
+            LoggerUtil.getLogger().fine("Sent " + toSend + "/" + peerConn);
 
-            if (waitreply) {
-                PeerMessage onereply = peerconn.recvData();
-                while (onereply != null) {
-                    msgreply.add(onereply);
-                    LoggerUtil.getLogger().fine("Got reply " + onereply);
-                    onereply = peerconn.recvData();
+            if (waitReply) {
+                PeerMessage oneReply = peerConn.recvData();
+                if (oneReply != null) {
+                    msgReply.add(oneReply);
+                    LoggerUtil.getLogger().fine("Got reply " + oneReply);
                 }
             }
-            peerconn.close();
+            peerConn.close();
         } catch (IOException e) {
-            LoggerUtil.getLogger().warning("Error: " + e + "/"
-                    + pd + "/" + msgtype);
+            LoggerUtil.getLogger().warning("Error: " + e + "/" + peerInfo + "/" + msgType);
         }
-        return msgreply;
+        return msgReply;
     }
 
     /**
@@ -282,10 +257,9 @@ public class Node {
             while (!shutdown) {
                 LoggerUtil.getLogger().fine("Listening...");
                 try {
-                    Socket clientsock = s.accept();
-                    clientsock.setSoTimeout(0);
-
-                    PeerHandler ph = new PeerHandler(clientsock);
+                    Socket clientSock = s.accept();
+                    clientSock.setSoTimeout(0);
+                    PeerHandler ph = new PeerHandler(clientSock);
                     ph.start();
                 } catch (SocketTimeoutException e) {
                     LoggerUtil.getLogger().fine("" + e);
@@ -313,81 +287,76 @@ public class Node {
         sr.start();
     }
 
-    public void addHandler(String msgtype, HandlerInterface handler) {
-        handlers.put(msgtype, handler);
+    public void addHandler(String msgType, HandlerInterface handler) {
+        handlers.put(msgType, handler);
     }
-
 
     public void addRouter(RouterInterface router) {
         this.router = router;
     }
-
 
     public boolean addPeer(PeerInfo pd) {
         return addPeer(pd.getId(), pd);
     }
 
     /**
-     * Add new peer information to the peer list, indexed by the given
-     * key.
+     * 增加网络节点
      *
-     * @param key the key associated with the peer
-     * @param pd  the peer information
-     * @return true if successful; false if maxPeers is reached, or if the
-     * peer list already contains the given key.
+     * @param key
+     * @param pd
+     * @return
      */
     public boolean addPeer(String key, PeerInfo pd) {
-        if ((maxPeers == 0 || peers.size() < maxPeers) &&
-                !peers.containsKey(key)) {
+        boolean flag = (maxPeers == 0 || peers.size() < maxPeers) && !peers.containsKey(key);
+        if (flag) {
             peers.put(key, pd);
             return true;
         }
         return false;
     }
 
-
     public PeerInfo getPeer(String key) {
         return peers.get(key);
     }
-
 
     public PeerInfo removePeer(String key) {
         return peers.remove(key);
     }
 
-
     public Set<String> getPeerKeys() {
         return peers.keySet();
     }
-
 
     public int getNumberOfPeers() {
         return peers.size();
     }
 
-
     public int getMaxPeers() {
         return maxPeers;
     }
-
 
     public boolean maxPeersReached() {
         return maxPeers > 0 && peers.size() == maxPeers;
     }
 
-
     public String getId() {
         return myInfo.getId();
     }
-
 
     public String getHost() {
         return myInfo.getHost();
     }
 
-
     public int getPort() {
         return myInfo.getPort();
     }
 
+
+    public Blockchain getBlockchain() {
+        return blockchain;
+    }
+
+    public void setBlockchain(Blockchain blockchain) {
+        this.blockchain = blockchain;
+    }
 }

@@ -46,6 +46,7 @@ public class Blockchain {
         return new Blockchain(lastBlockHash);
     }
 
+
     /**
      * <p> 创建区块链 </p>
      *
@@ -65,6 +66,7 @@ public class Blockchain {
         }
         return new Blockchain(lastBlockHash);
     }
+
 
     /**
      * 打包交易，进行挖矿
@@ -274,4 +276,15 @@ public class Blockchain {
             throw new RuntimeException("Fail to verify transaction ! transaction invalid ! ", e);
         }
     }
+
+    /**
+     * 获取本地节点区块的最大高度
+     *
+     * @return
+     */
+    public long getBestHeight() {
+        Block lastBlock = RocksDBUtils.getInstance().getLastBlock();
+        return lastBlock.getHeight();
+    }
+
 }

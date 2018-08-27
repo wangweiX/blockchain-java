@@ -23,9 +23,7 @@
 	Jan 31 2007	Nadeem Abdul Hamid	Created
  */
 
-
 package one.wangwei.blockchain.network.util;
-
 
 import one.wangwei.blockchain.network.Node;
 import one.wangwei.blockchain.network.PeerInfo;

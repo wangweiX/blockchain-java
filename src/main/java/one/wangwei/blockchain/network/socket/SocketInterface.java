@@ -1,51 +1,23 @@
-/*
-	File: SocketInterface.java
-	Copyright 2007 by Nadeem Abdul Hamid
-	
-	Permission to use, copy, modify, and distribute this software and its
-	documentation for any purpose and without fee is hereby granted, provided
-	that the above copyright notice appear in all copies and that both the
-	copyright notice and this permission notice and warranty disclaimer appear
-	in supporting documentation, and that the names of the authors or their
-	employers not be used in advertising or publicity pertaining to distri-
-	bution of the software without specific, written prior permission.
-
-	The authors and their employers disclaim all warranties with regard to
-	this software, including all implied warranties of merchantability and
-	fitness. In no event shall the authors or their employers be liable for 
-	any special, indirect or consequential damages or any damages whatsoever 
-	resulting from loss of use, data or profits, whether in an action of 
-	contract, negligence or other tortious action, arising out of or in 
-	connection with the use or performance of this software, even if 
-	advised of the possibility of such damage.
-
-	Date		Author				Changes
-	Jan 29 2007	Nadeem Abdul Hamid	Created
- */
-
-
 package one.wangwei.blockchain.network.socket;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
- * The socket interface for the PeerBase system. Methods for reading
- * and writing are modelled after the basic InputStream/OutputStream
- * classes of the Java library.
+ * Socket interface
  *
- * @author Nadeem Abdul Hamid
+ * @author wangwei
+ * @date 2018/08/24
  */
 public interface SocketInterface {
 
     /**
-     * Writes b.length bytes from the specified byte array to this
-     * socket connection.
+     * 向socket连接中写入数据
      *
-     * @param b the data
-     * @throws IOException if an I/O error occurs
-     **/
+     * @param b
+     * @throws IOException
+     */
     public void write(byte[] b) throws IOException;
-
 
     /**
      * Reads the next byte of data from the socket connection. The value
@@ -61,7 +33,6 @@ public interface SocketInterface {
      */
     public int read() throws IOException;
 
-
     /**
      * Reads some number of bytes from the socket connection and stores them
      * into the buffer array b. The number of bytes actually read is
@@ -74,14 +45,19 @@ public interface SocketInterface {
      * @throws IOException if an I/O error occurs
      * @see InputStream#read()
      */
+    /**
+     * 从socket连接读取指定长度的byte[]数据，并存入byte[]中
+     *
+     * @param b
+     * @return
+     * @throws IOException
+     */
     public int read(byte[] b) throws IOException;
 
-
     /**
-     * Closes this connection and releases any system resources
-     * associated with the socket.
+     * 关闭socket连接，释放占用的系统资源
      *
-     * @throws IOException if an I/O error occurs
-     **/
+     * @throws IOException
+     */
     public void close() throws IOException;
 }

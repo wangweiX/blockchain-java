@@ -45,4 +45,24 @@ public class ByteUtils {
         return ByteBuffer.allocate(Long.BYTES).putLong(val).array();
     }
 
+    /**
+     * int 类型转 byte[]
+     *
+     * @param val
+     * @return
+     */
+    public static byte[] toBytes(int val) {
+        return ByteBuffer.allocate(Integer.BYTES).putInt(val).array();
+    }
+
+    /**
+     * byte[] 转化为 int
+     *
+     * @param bytes
+     * @return
+     */
+    public static int toInt(byte[] bytes) {
+        return ByteBuffer.wrap(bytes).getInt();
+    }
+
 }

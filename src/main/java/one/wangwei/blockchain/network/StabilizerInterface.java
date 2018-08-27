@@ -32,5 +32,7 @@ package one.wangwei.blockchain.network;
  * @author Nadeem Abdul Hamid
  **/
 public interface StabilizerInterface {
+
     public void stabilizer();
+
 }
