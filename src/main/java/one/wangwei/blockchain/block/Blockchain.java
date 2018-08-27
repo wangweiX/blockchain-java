@@ -1,5 +1,6 @@
 package one.wangwei.blockchain.block;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -96,6 +98,26 @@ public class Blockchain {
         RocksDBUtils.getInstance().putLastBlockHash(block.getHash());
         RocksDBUtils.getInstance().putBlock(block);
         this.lastBlockHash = block.getHash();
+    }
+
+    /**
+     * <p> 添加区块  </p>
+     *
+     * @param block
+     */
+    public void saveBlock(Block block) {
+        Block existBlock = RocksDBUtils.getInstance().getBlock(block.getHash());
+        if (existBlock != null) {
+            return;
+        }
+        // 保存区块数据
+        RocksDBUtils.getInstance().putBlock(block);
+        Block lastBlock = RocksDBUtils.getInstance().getLastBlock();
+
+        if (block.getHeight() > lastBlock.getHeight()) {
+            RocksDBUtils.getInstance().putLastBlockHash(block.getHash());
+            this.lastBlockHash = block.getHash();
+        }
     }
 
 
@@ -287,4 +309,28 @@ public class Blockchain {
         return lastBlock.getHeight();
     }
 
+    /**
+     * 获取区块链中所有区块的hash值
+     *
+     * @return
+     */
+    public List<String> getAllBlockHash() {
+        List<String> blockHashes = Lists.newArrayList();
+        BlockchainIterator iterator = this.getBlockchainIterator();
+        for (BlockchainIterator blockchainIterator = this.getBlockchainIterator(); blockchainIterator.hashNext(); ) {
+            Block block = blockchainIterator.next();
+            blockHashes.add(block.getHash());
+        }
+        return blockHashes;
+    }
+
+    /**
+     * 根据hash查询区块
+     *
+     * @param hash
+     * @return
+     */
+    public Block getBlockByHash(String hash) {
+        return RocksDBUtils.getInstance().getBlock(hash);
+    }
 }

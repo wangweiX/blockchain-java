@@ -32,4 +32,6 @@ public class BaseMessageData {
     public byte[] toBytes() {
         return SerializeUtils.serialize(this);
     }
+
+
 }

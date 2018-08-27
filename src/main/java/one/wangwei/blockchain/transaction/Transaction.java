@@ -159,7 +159,6 @@ public class Transaction {
         return newTx;
     }
 
-
     /**
      * 创建用于签名的交易数据副本，交易输入的 signature 和 pubKey 需要设置为null
      *

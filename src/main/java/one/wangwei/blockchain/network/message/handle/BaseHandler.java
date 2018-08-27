@@ -1,6 +1,6 @@
 package one.wangwei.blockchain.network.message.handle;
 
-import lombok.AllArgsConstructor;
+import com.google.common.collect.Lists;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import one.wangwei.blockchain.block.Blockchain;
@@ -9,7 +9,11 @@ import one.wangwei.blockchain.network.PeerConnection;
 import one.wangwei.blockchain.network.message.MessageTypEnum;
 import one.wangwei.blockchain.network.message.PeerMessage;
 import one.wangwei.blockchain.network.message.data.*;
+import one.wangwei.blockchain.transaction.Transaction;
 import one.wangwei.blockchain.util.SerializeUtils;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * 抽象消息处理器
@@ -19,10 +23,22 @@ import one.wangwei.blockchain.util.SerializeUtils;
  */
 @Data
 @Slf4j
-@AllArgsConstructor
 public class BaseHandler implements HandlerInterface {
 
     private Node node;
+
+    /**
+     * 待同步的区块Hash列表
+     */
+    private List<String> blocksInTransit = Lists.newArrayList();
+    /**
+     * 交易内存池
+     */
+    private Map<String, Transaction> memPool;
+
+    public BaseHandler(Node node) {
+        this.node = node;
+    }
 
     /**
      * 消息处理
@@ -70,8 +86,22 @@ public class BaseHandler implements HandlerInterface {
         if (MessageTypEnum.GETBLOCKS.type.equals(msgType)) {
             return (GetBlocksMessageData) SerializeUtils.deserialize(peerMessage.getMsgDataBytes());
         }
+        if (MessageTypEnum.INVENTORY.type.equals(msgType)) {
+            return (InventoryMessageData) SerializeUtils.deserialize(peerMessage.getMsgDataBytes());
+        }
+        if (MessageTypEnum.GETDATA.type.equals(msgType)) {
+            return (GetDataMessageData) SerializeUtils.deserialize(peerMessage.getMsgDataBytes());
+        }
+        if (MessageTypEnum.BLOCK.type.equals(msgType)) {
+            return (BlockMessageData) SerializeUtils.deserialize(peerMessage.getMsgDataBytes());
+        }
+        if (MessageTypEnum.TX.type.equals(msgType)) {
+            return (TxMessageData) SerializeUtils.deserialize(peerMessage.getMsgDataBytes());
+        }
         throw new RuntimeException("Invalid Message Type ! type = " + msgType);
     }
+
+
 }
 
 

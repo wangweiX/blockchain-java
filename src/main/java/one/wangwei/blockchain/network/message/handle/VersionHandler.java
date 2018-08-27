@@ -40,13 +40,15 @@ public class VersionHandler extends BaseHandler {
         long foreignerBestHeight = messageData.getBestHeight();
         long myBestHeight = blockchain.getBestHeight();
 
-        // 如果本地区块高度小于其他节点，则下载区块数据
+        // 如果本地区块高度小于其他节点，则从对方节点下载区块数据
         if (myBestHeight < foreignerBestHeight) {
             GetBlocksMessageData getBlocksMessageData = new GetBlocksMessageData();
             getBlocksMessageData.setMyPeerInfo(this.getNode().getMyInfo());
             getBlocksMessageData.setNTime(System.currentTimeMillis());
             peerConn.sendData(new PeerMessage(MessageTypEnum.GETBLOCKS, getBlocksMessageData));
-        } else {
+        }
+        // 如果本地区块高度大于其他节点，则发送version指令，让对方下载区块数据
+        else if (myBestHeight > foreignerBestHeight) {
             VersionMessageData myVersionData = new VersionMessageData();
             myVersionData.setBestHeight(myBestHeight);
             myVersionData.setMyPeerInfo(this.getNode().getMyInfo());
