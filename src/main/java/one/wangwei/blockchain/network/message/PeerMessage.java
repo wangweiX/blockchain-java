@@ -61,8 +61,9 @@ public class PeerMessage<T extends BaseMessageData> {
         int len = ByteUtils.toInt(dataLen);
         data = new byte[len];
 
-        if (s.read(data) != len)
+        if (s.read(data) != len) {
             throw new IOException("EOF in PeerMessage constructor: Unexpected message data length");
+        }
     }
 
     /**

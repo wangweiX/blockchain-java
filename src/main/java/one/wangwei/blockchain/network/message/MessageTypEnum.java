@@ -1,7 +1,6 @@
 package one.wangwei.blockchain.network.message;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * 消息类型枚举
@@ -30,18 +29,6 @@ public enum MessageTypEnum {
     MessageTypEnum(String type, String desc) {
         this.type = type;
         this.desc = desc;
-    }
-
-    public static MessageTypEnum getMessgeType(String type) {
-        if (StringUtils.isBlank(type)) {
-            throw new RuntimeException("");
-        }
-        for (MessageTypEnum typEnum : MessageTypEnum.values()) {
-            if (typEnum.type.equals(type)) {
-                return typEnum;
-            }
-        }
-        throw new RuntimeException("");
     }
 
     /**

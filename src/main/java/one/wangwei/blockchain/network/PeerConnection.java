@@ -44,7 +44,6 @@ public class PeerConnection {
         s = socket;
     }
 
-
     /**
      * Sends a PeerMessage to the connected peer.
      *

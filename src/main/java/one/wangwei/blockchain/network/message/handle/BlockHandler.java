@@ -31,8 +31,12 @@ public class BlockHandler extends BaseHandler {
         BlockMessageData blockMessageData = (BlockMessageData) this.getMsgData(peerMessage);
 
         Block block = blockMessageData.getBlock();
+
+        // TODO 验证区块
+
         blockchain.saveBlock(block);
 
+        // 如果还有待同步的区块，则再次发送 GETDATA 指令，向另外的节点请求数据
         if (this.getBlocksInTransit().size() > 0) {
             String blockHash = this.getBlocksInTransit().get(0);
             GetDataMessageData messageData = new GetDataMessageData();
@@ -45,8 +49,7 @@ public class BlockHandler extends BaseHandler {
 
         } else {
             UTXOSet utxoSet = new UTXOSet(blockchain);
-            utxoSet.reIndex();
+            utxoSet.update(block);
         }
-
     }
 }

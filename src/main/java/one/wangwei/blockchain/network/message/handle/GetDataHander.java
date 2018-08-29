@@ -9,6 +9,7 @@ import one.wangwei.blockchain.network.message.MessageTypEnum;
 import one.wangwei.blockchain.network.message.PeerMessage;
 import one.wangwei.blockchain.network.message.data.BlockMessageData;
 import one.wangwei.blockchain.network.message.data.GetDataMessageData;
+import one.wangwei.blockchain.network.message.data.TxMessageData;
 import one.wangwei.blockchain.transaction.Transaction;
 
 /**
@@ -34,18 +35,27 @@ public class GetDataHander extends BaseHandler {
     public void handleMessage(PeerConnection peerConn, PeerMessage peerMessage, Blockchain blockchain) {
         GetDataMessageData getDataMessageData = (GetDataMessageData) this.getMsgData(peerMessage);
 
+        // 处理同步区块请求
         if (getDataMessageData.getType() == InvTypeEnum.BLOCK) {
             Block block = blockchain.getBlockByHash(getDataMessageData.getId());
+
             BlockMessageData blockMessageData = new BlockMessageData();
             blockMessageData.setBlock(block);
+
             peerConn.sendData(new PeerMessage(MessageTypEnum.BLOCK, blockMessageData));
         }
 
+        // 处理同步交易请求
         if (getDataMessageData.getType() == InvTypeEnum.TX) {
             String txId = getDataMessageData.getId();
             Transaction tx = this.getMemPool().get(txId);
 
-            // TODO
+            TxMessageData txMessageData = new TxMessageData();
+            txMessageData.setTx(tx);
+            txMessageData.setMyPeerInfo(this.getNode().getMyInfo());
+            txMessageData.setNTime(System.currentTimeMillis());
+
+            peerConn.sendData(new PeerMessage(MessageTypEnum.TX, txMessageData));
         }
     }
 }

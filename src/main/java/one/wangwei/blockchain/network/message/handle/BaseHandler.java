@@ -1,6 +1,7 @@
 package one.wangwei.blockchain.network.message.handle;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import one.wangwei.blockchain.block.Blockchain;
@@ -30,11 +31,11 @@ public class BaseHandler implements HandlerInterface {
     /**
      * 待同步的区块Hash列表
      */
-    private List<String> blocksInTransit = Lists.newArrayList();
+    private List<String> blocksInTransit = Lists.newCopyOnWriteArrayList();
     /**
      * 交易内存池
      */
-    private Map<String, Transaction> memPool;
+    private Map<String, Transaction> memPool = Maps.newConcurrentMap();
 
     public BaseHandler(Node node) {
         this.node = node;

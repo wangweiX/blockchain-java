@@ -35,6 +35,7 @@ public class InventoryHandler extends BaseHandler {
         if (checkPeerLimit(peerConn)) {
             return;
         }
+
         InventoryMessageData inventoryMessageData = (InventoryMessageData) this.getMsgData(peerMessage);
         if (InvTypeEnum.BLOCK == inventoryMessageData.getInvType()) {
             List<String> blockHashes = inventoryMessageData.getBlockHashes();

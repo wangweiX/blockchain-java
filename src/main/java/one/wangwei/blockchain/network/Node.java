@@ -1,5 +1,6 @@
 package one.wangwei.blockchain.network;
 
+import com.google.common.collect.Lists;
 import lombok.Data;
 import one.wangwei.blockchain.block.Blockchain;
 import one.wangwei.blockchain.network.message.MessageTypEnum;
@@ -33,6 +34,7 @@ public class Node {
      * This class is used to respond to and handle incoming connections in a separate thread.
      */
     private class PeerHandler extends Thread {
+
         private SocketInterface s;
 
         public PeerHandler(Socket socket) throws IOException {
@@ -88,7 +90,7 @@ public class Node {
      */
     private static final int SOCKETTIMEOUT = 2000;
     /**
-     * 节点信息
+     * 本地节点信息
      */
     private PeerInfo myInfo;
     /**
@@ -96,7 +98,7 @@ public class Node {
      */
     private int maxPeers;
     /**
-     * 本地维护的节点列表
+     * 网络中可知的节点列表
      */
     private Hashtable<String, PeerInfo> peers;
 
@@ -109,12 +111,18 @@ public class Node {
     private boolean shutdown;
 
     private Blockchain blockchain;
+    /**
+     * 钱包地址
+     */
+    private String address;
 
     public Node(int maxPeers, PeerInfo info, String btcAddress) {
         if (StringUtils.isBlank(btcAddress)) {
             Wallet wallet = WalletUtils.getInstance().createWallet();
             btcAddress = wallet.getAddress();
         }
+
+        this.setAddress(btcAddress);
 
         Blockchain blockchain = Blockchain.createBlockchain(btcAddress);
 
@@ -207,7 +215,7 @@ public class Node {
         }
         if (pd == null) {
             LoggerUtil.getLogger().severe(String.format("Unable to route %s to %s", msgType, peerId));
-            return new ArrayList<>();
+            return Lists.newArrayList();
         }
         return connectAndSend(pd, msgType, msgData, waitReply);
     }
@@ -350,7 +358,6 @@ public class Node {
     public int getPort() {
         return myInfo.getPort();
     }
-
 
     public Blockchain getBlockchain() {
         return blockchain;

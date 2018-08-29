@@ -5,14 +5,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 /**
- * Factory for socket implementations. Used by classes of the PeerBase
- * system to generate sockets appropriate for normal use, testing, or
- * educational purposes.
- *
- * @author Nadeem Abdul Hamid
- */
-
-/**
+ * socket 抽象工厂
  *
  * @author wangwei
  * @date 2018/08/26
@@ -32,23 +25,21 @@ public abstract class AbstractSocketFactory {
     }
 
     /**
-     * Constructs a new socket object, appropriate to the purpose
-     * of the factory.
+     * 创建socket
      *
-     * @param host the host name
-     * @param port the port number
-     * @return a socket connection object
+     * @param host
+     * @param port
+     * @return
      * @throws IOException
      * @throws UnknownHostException
      */
     public abstract SocketInterface makeSocket(String host, int port) throws IOException, UnknownHostException;
 
     /**
-     * Constructs a new SocketInterface object, encapsulating a standard Java
-     * API Socket object.
+     * 创建socket
      *
-     * @param socket the socket to encapsulate
-     * @return a socket connection object
+     * @param socket
+     * @return
      * @throws IOException
      */
     public abstract SocketInterface makeSocket(Socket socket) throws IOException;

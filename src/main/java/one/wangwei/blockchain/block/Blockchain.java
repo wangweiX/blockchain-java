@@ -69,7 +69,6 @@ public class Blockchain {
         return new Blockchain(lastBlockHash);
     }
 
-
     /**
      * 打包交易，进行挖矿
      *
@@ -282,7 +281,7 @@ public class Blockchain {
      *
      * @param tx
      */
-    private boolean verifyTransactions(Transaction tx) {
+    public boolean verifyTransactions(Transaction tx) {
         if (tx.isCoinbase()) {
             return true;
         }
@@ -316,7 +315,6 @@ public class Blockchain {
      */
     public List<String> getAllBlockHash() {
         List<String> blockHashes = Lists.newArrayList();
-        BlockchainIterator iterator = this.getBlockchainIterator();
         for (BlockchainIterator blockchainIterator = this.getBlockchainIterator(); blockchainIterator.hashNext(); ) {
             Block block = blockchainIterator.next();
             blockHashes.add(block.getHash());

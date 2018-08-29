@@ -174,7 +174,7 @@ public class RocksDBUtils {
         if (blockBytes != null) {
             return (Block) SerializeUtils.deserialize(blockBytes);
         }
-        throw new RuntimeException("Fail to get block ! blockHash=" + blockHash);
+        throw new RuntimeException("Fail to get block , don`t exist ! blockHash=" + blockHash);
     }
 
     /**

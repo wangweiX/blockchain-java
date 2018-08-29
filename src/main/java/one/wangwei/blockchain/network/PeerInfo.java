@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import java.util.Objects;
+
 /**
  * P2P网络中的节点信息
  *
@@ -16,6 +18,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PeerInfo {
+
     /**
      * peer在p2p网络的唯一标示
      */
@@ -37,4 +40,18 @@ public class PeerInfo {
         this(null, port);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PeerInfo peerInfo = (PeerInfo) o;
+        return port == peerInfo.port &&
+                Objects.equals(id, peerInfo.id) &&
+                Objects.equals(host, peerInfo.host);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, host, port);
+    }
 }
