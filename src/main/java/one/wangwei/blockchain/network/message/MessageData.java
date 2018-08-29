@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 import one.wangwei.blockchain.block.Block;
 import one.wangwei.blockchain.network.PeerInfo;
 import one.wangwei.blockchain.transaction.Transaction;
@@ -19,7 +18,6 @@ import java.util.List;
  * @author wangwei
  * @date 2018/08/24
  */
-@ToString
 @Data
 public class MessageData {
 

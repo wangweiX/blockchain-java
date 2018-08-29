@@ -3,7 +3,6 @@ package one.wangwei.blockchain.network;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 import java.util.Objects;
 
@@ -14,7 +13,6 @@ import java.util.Objects;
  * @date 2018/08/24
  */
 @Data
-@ToString
 @AllArgsConstructor
 @NoArgsConstructor
 public class PeerInfo {
