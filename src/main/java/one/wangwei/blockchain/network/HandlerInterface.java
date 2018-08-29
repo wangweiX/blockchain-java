@@ -1,9 +1,8 @@
-package one.wangwei.blockchain.network.message.handle;
+package one.wangwei.blockchain.network;
 
 import one.wangwei.blockchain.block.Blockchain;
-import one.wangwei.blockchain.network.PeerConnection;
 import one.wangwei.blockchain.network.message.PeerMessage;
-import one.wangwei.blockchain.network.message.data.BaseMessageData;
+import one.wangwei.blockchain.network.message.MessageData;
 
 /**
  * 消息处理接口
@@ -11,7 +10,7 @@ import one.wangwei.blockchain.network.message.data.BaseMessageData;
  * @author wangwei
  * @date 2018/08/26
  */
-public interface HandlerInterface<T extends BaseMessageData> {
+public interface HandlerInterface<T extends MessageData> {
 
     /**
      * 消息处理

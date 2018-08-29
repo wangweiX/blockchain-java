@@ -5,8 +5,7 @@ import lombok.Data;
 import one.wangwei.blockchain.block.Blockchain;
 import one.wangwei.blockchain.network.message.MessageTypEnum;
 import one.wangwei.blockchain.network.message.PeerMessage;
-import one.wangwei.blockchain.network.message.data.BaseMessageData;
-import one.wangwei.blockchain.network.message.handle.HandlerInterface;
+import one.wangwei.blockchain.network.message.MessageData;
 import one.wangwei.blockchain.network.socket.AbstractSocketFactory;
 import one.wangwei.blockchain.network.socket.SocketInterface;
 import one.wangwei.blockchain.util.LoggerUtil;
@@ -207,8 +206,8 @@ public class Node {
      * @param <T>
      * @return
      */
-    public <T extends BaseMessageData> List<PeerMessage> sendToPeer(String peerId, MessageTypEnum msgType,
-                                                                    T msgData, boolean waitReply) {
+    public <T extends MessageData> List<PeerMessage> sendToPeer(String peerId, MessageTypEnum msgType,
+                                                                T msgData, boolean waitReply) {
         PeerInfo pd = null;
         if (router != null) {
             pd = router.route(peerId);
@@ -230,8 +229,8 @@ public class Node {
      * @param <T>
      * @return
      */
-    public <T extends BaseMessageData> List<PeerMessage> connectAndSend(PeerInfo peerInfo, MessageTypEnum msgType,
-                                                                        T msgData, boolean waitReply) {
+    public <T extends MessageData> List<PeerMessage> connectAndSend(PeerInfo peerInfo, MessageTypEnum msgType,
+                                                                    T msgData, boolean waitReply) {
         List<PeerMessage> msgReply = new ArrayList<>();
         try {
             PeerConnection peerConn = new PeerConnection(peerInfo);

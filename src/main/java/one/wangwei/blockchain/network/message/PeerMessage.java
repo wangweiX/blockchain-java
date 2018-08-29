@@ -2,7 +2,6 @@ package one.wangwei.blockchain.network.message;
 
 
 import lombok.ToString;
-import one.wangwei.blockchain.network.message.data.BaseMessageData;
 import one.wangwei.blockchain.network.socket.SocketInterface;
 import one.wangwei.blockchain.util.ByteUtils;
 
@@ -16,7 +15,7 @@ import java.io.IOException;
  * @date 2018/08/24
  */
 @ToString
-public class PeerMessage<T extends BaseMessageData> {
+public class PeerMessage<T extends MessageData> {
 
     /**
      * 规定message type转化后的byte[]长度

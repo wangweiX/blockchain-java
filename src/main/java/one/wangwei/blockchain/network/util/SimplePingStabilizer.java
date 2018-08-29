@@ -29,9 +29,9 @@ package one.wangwei.blockchain.network.util;
 import one.wangwei.blockchain.network.Node;
 import one.wangwei.blockchain.network.PeerConnection;
 import one.wangwei.blockchain.network.StabilizerInterface;
+import one.wangwei.blockchain.network.message.MessageData;
 import one.wangwei.blockchain.network.message.MessageTypEnum;
 import one.wangwei.blockchain.network.message.PeerMessage;
-import one.wangwei.blockchain.network.message.data.StringMessageData;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -68,7 +68,7 @@ public class SimplePingStabilizer implements StabilizerInterface {
             PeerConnection peerconn = null;
             try {
                 peerconn = new PeerConnection(peer.getPeer(pid));
-                peerconn.sendData(new PeerMessage(msgType, new StringMessageData("")));
+                peerconn.sendData(new PeerMessage(msgType, new MessageData.StringMessageData("")));
                 isconn = true;
             } catch (IOException e) {
                 toDelete.add(pid);
