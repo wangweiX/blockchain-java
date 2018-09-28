@@ -24,7 +24,7 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.test.skip>true</maven.test.skip>
         <netty-all.version>4.1.29.Final</netty-all.version>
-        <guava.version>19.0</guava.version>
+        <guava.version>24.0-jre</guava.version>
         <jopt-simple.version>5.0.4</jopt-simple.version>
     </properties>
     <dependencies>
@@ -75,11 +75,6 @@
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <version>2.6</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>24.0-jre</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -147,7 +142,8 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>one.wangwei.blockchain.cli.CLI</mainClass>
+                            <!--<mainClass>one.wangwei.blockchain.cli.CLI</mainClass>-->
+                            <mainClass>one.wangwei.blockchain.network.Main</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

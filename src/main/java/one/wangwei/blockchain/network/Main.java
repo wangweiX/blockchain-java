@@ -101,10 +101,10 @@ public class Main {
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
-        if (System.getProperty(PEER_NAME_SYSTEM_PROPERTY) == null) {
-            log.error("System property peerName should be provided!");
-            System.exit(-1);
-        }
+//        if (System.getProperty(PEER_NAME_SYSTEM_PROPERTY) == null) {
+//            log.error("System property peerName should be provided!");
+//            System.exit(-1);
+//        }
 
         final OptionSet options = parseArguments(args);
         final PeerRunner peerRunner = createPeerRunner(options);

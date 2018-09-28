@@ -2,6 +2,8 @@ package one.wangwei.blockchain.network.peer;
 
 import lombok.Data;
 
+import java.util.concurrent.TimeUnit;
+
 @Data
 public class Config {
 
@@ -71,6 +73,9 @@ public class Config {
      */
     private int leaderRejectionTimeoutSeconds = DEFAULT_LEADER_REJECTION_TIMEOUT_SECONDS;
 
+    public long getPingTimeoutMillis() {
+        return TimeUnit.SECONDS.toMillis(pingTimeoutSeconds);
+    }
 
     @Override
     public String toString() {
