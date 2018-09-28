@@ -246,4 +246,8 @@ public class CLI {
         }
     }
 
+    public static void main(String[] args) {
+        CLI cli = new CLI(args);
+        cli.parse();
+    }
 }
